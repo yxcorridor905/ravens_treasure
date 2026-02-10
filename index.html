@@ -1,0 +1,4271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Raven's Treasure - 乌鸦的宝藏</title>
+    
+    <!--
+    ========================================
+    🔐 开发者配置说明
+    ========================================
+    
+    本版本为开发者模式：
+    - API Key 已硬编码在代码中
+    - 用户无法通过界面修改 API Key
+    - 移除了所有 API 设置相关的用户界面
+    
+    如需配置您的 DeepSeek API Key：
+    1. 在代码中搜索 "⚠️ 开发者请在此处配置"
+    2. 将 API Key 替换为您的实际密钥
+    3. 或者搜索 this.apiKey = 'sk-...'
+    
+    获取 API Key：https://platform.deepseek.com
+    ========================================
+    -->
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Ma+Shan+Zheng&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 桌面端预览容器 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Serif SC', serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+        }
+
+        /* 手机模拟器外壳 */
+        @media (min-width: 768px) {
+            body {
+                background: linear-gradient(135deg, #8b7355 0%, #5a4a3a 100%);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            #phone-simulator {
+                width: 375px;
+                height: 812px;
+                background: #000;
+                border-radius: 40px;
+                padding: 12px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                position: relative;
+            }
+
+            #phone-simulator::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 150px;
+                height: 30px;
+                background: #000;
+                border-radius: 0 0 20px 20px;
+                z-index: 10;
+            }
+
+            #phone-screen {
+                width: 100%;
+                height: 100%;
+                background: #E8E4D9;
+                border-radius: 32px;
+                overflow: hidden;
+                position: relative;
+            }
+        }
+
+        @media (max-width: 767px) {
+            #phone-screen {
+                width: 100%;
+                min-height: 100vh;
+                background: #E8E4D9;
+            }
+        }
+
+        /* 应用主体 */
+        #app {
+            width: 100%;
+            height: 100%;
+            background: #E8E4D9;
+            color: #3D2F2F;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 页面容器 */
+        .page {
+            visibility: hidden;
+            opacity: 0;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            transition: opacity 0.3s ease;
+            padding-bottom: 103px;
+        }
+
+        @media (min-width: 768px) {
+            .page {
+                padding-bottom: 90px;
+            }
+        }
+
+        .page.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* 顶部导航栏 */
+        .nav-bar {
+            height: 88px;
+            padding-top: 44px;
+            background: #E8E4D9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border-bottom: none;
+        }
+
+        .nav-bar .back-btn {
+            position: absolute;
+            left: 16px;
+            top: 50px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3D2F2F;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 28px;
+        }
+
+        .nav-bar .title {
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: #3D2F2F;
+        }
+
+        /* 底部TabBar */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 83px;
+            padding-bottom: 20px;
+            background: #E8E4D9;
+            border-top: 0.5px solid rgba(61, 47, 47, 0.2);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .tab-bar {
+                max-width: 351px;
+                left: auto;
+                right: auto;
+                bottom: 0;
+                transform: none;
+                border-radius: 0 0 20px 20px;
+                margin: 0 12px 12px 12px;
+                width: calc(100% - 24px);
+                padding-bottom: 12px;
+                height: 70px;
+            }
+            
+            #phone-screen .tab-bar {
+                position: absolute;
+            }
+        }
+
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #8b7355;
+            font-size: 10px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 8px;
+            letter-spacing: 0;
+            transition: all 0.2s ease;
+        }
+
+        .tab-item.active {
+            color: #3D2F2F;
+        }
+
+        .tab-item.active .tab-line {
+            background: #3D2F2F;
+        }
+
+        .tab-icon {
+            width: 28px;
+            height: 28px;
+            margin-bottom: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tab-icon svg {
+            width: 26px;
+            height: 26px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: all 0.2s ease;
+        }
+
+        .tab-item.active .tab-icon svg {
+            stroke: #3D2F2F;
+        }
+
+        .tab-line {
+            display: none;
+        }
+
+        /* ==================== 记录页 ==================== */
+        #recordPage {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .record-content {
+            flex: 1;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-icon {
+            width: 64px;
+            height: 64px;
+            margin: 8px auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border-radius: 50%;
+            animation: rotate-slow-icon 20s linear infinite; /* 缓慢旋转 */
+        }
+
+        @keyframes rotate-slow-icon {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .page-icon svg {
+            width: 48px;
+            height: 48px;
+            stroke: #8b7355;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .page-icon svg .fill-eye {
+            fill: #8b7355;
+        }
+
+        .page-title {
+            font-family: 'Ma Shan Zheng', 'Noto Serif SC', serif;
+            font-size: 28px;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 12px;
+            letter-spacing: 6px;
+            color: #3D2F2F;
+            /* 删除浮动动效 */
+        }
+
+        .page-subtitle {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 12px;
+            font-style: italic;
+            text-align: center;
+            margin-bottom: 36px;
+            color: #8b7355;
+            line-height: 1.8;
+            opacity: 0.8;
+        }
+
+        .section-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: #3D2F2F;
+            margin-bottom: 12px;
+            letter-spacing: 0;
+        }
+
+        /* 情绪选择 */
+        .emotion-selector {
+            margin-bottom: 28px;
+        }
+
+        .emotion-list {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            cursor: grab;
+        }
+
+        .emotion-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .emotion-btn {
+            flex-shrink: 0;
+            padding: 10px 16px;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(61, 47, 47, 0.04);
+            border: 1px solid rgba(61, 47, 47, 0.15);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #3D2F2F;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .emotion-btn .emotion-icon {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .emotion-btn.active {
+            background: #3D2F2F;
+            color: #E8E4D9;
+            border-color: #3D2F2F;
+            transform: scale(1.02);
+        }
+
+        .emotion-btn:active:not(.active) {
+            transform: scale(0.96);
+        }
+
+        /* 情绪颜色 */
+        .emotion-icon.舒爽 { background: #E8A95D; }
+        .emotion-icon.明媚 { background: #F4D06F; }
+        .emotion-icon.灵感涌现 { background: #5B8C8A; }
+        .emotion-icon.平静 { background: #7B9BA8; }
+        .emotion-icon.自我安抚 { background: #A0937D; }
+        .emotion-icon.烦躁 { background: #C77E6B; }
+        .emotion-icon.焦虑 { background: #9B7FA5; }
+        .emotion-icon.负重 { background: #6D6458; }
+        .emotion-icon.愤怒 { background: #A64B3A; }
+
+        /* 输入区域 */
+        .input-area {
+            margin-bottom: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-input {
+            width: 100%;
+            flex: 1;
+            min-height: 140px;
+            padding: 14px;
+            background: rgba(61, 47, 47, 0.03);
+            border: 1px solid rgba(61, 47, 47, 0.1);
+            border-radius: 12px;
+            font-size: 15px;
+            color: #3D2F2F;
+            resize: none;
+            font-family: inherit;
+            line-height: 1.6;
+            transition: all 0.2s ease;
+        }
+
+        .text-input::placeholder {
+            color: rgba(139, 115, 85, 0.5);
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: rgba(61, 47, 47, 0.25);
+            background: rgba(61, 47, 47, 0.02);
+        }
+
+        /* 主按钮 */
+        .primary-button {
+            width: 100%;
+            height: 50px;
+            background: #C9A961;
+            color: #3D2F2F;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(201, 169, 97, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .primary-button:disabled {
+            background: rgba(61, 47, 47, 0.1);
+            color: rgba(61, 47, 47, 0.3);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .primary-button:active:not(:disabled) {
+            transform: scale(0.98);
+            box-shadow: 0 1px 4px rgba(201, 169, 97, 0.3);
+        }
+
+        .primary-button.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .primary-button.loading::after {
+            content: '生成中...';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: #3D2F2F;
+        }
+
+        /* ==================== 宝箱页 ==================== */
+        #treasureBoxPage {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .treasure-box-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+        }
+
+        .treasure-box-frame {
+            width: 280px;
+            height: 280px;
+            border: 3px solid #3D2F2F;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            position: relative;
+            background: #F5F2EA;
+            padding: 20px;
+        }
+
+        .treasure-box-frame::before,
+        .treasure-box-frame::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #3D2F2F;
+        }
+
+        .treasure-box-frame::before {
+            top: -3px;
+            left: -3px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .treasure-box-frame::after {
+            bottom: -3px;
+            right: -3px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .treasure-illustration {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .treasure-illustration svg {
+            width: 200px;
+            height: 200px;
+            animation: float-chest 3s ease-in-out infinite; /* 宝箱浮动 */
+        }
+
+        /* 宝箱浮动动画 */
+        @keyframes float-chest {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* 上升光点粒子效果 */
+        .particles-rising {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle-rising {
+            position: absolute;
+            opacity: 0;
+            animation: rise 4s ease-in infinite;
+        }
+
+        /* 圆形粒子 */
+        .particle-circle {
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+        }
+
+        /* 金色粒子 */
+        .particle-gold {
+            background: #C9A961;
+        }
+
+        /* 深棕色粒子 */
+        .particle-brown {
+            background: #5D4E37;
+        }
+
+        /* 四角星粒子 */
+        .particle-star {
+            width: 6px;
+            height: 6px;
+            background: transparent;
+        }
+
+        .particle-star::before,
+        .particle-star::after {
+            content: '';
+            position: absolute;
+            background: #C9A961;
+        }
+
+        .particle-star::before {
+            width: 6px;
+            height: 2px;
+            top: 2px;
+            left: 0;
+        }
+
+        .particle-star::after {
+            width: 2px;
+            height: 6px;
+            top: 0;
+            left: 2px;
+        }
+
+        /* 符文粒子 */
+        .particle-rune {
+            width: 8px;
+            height: 8px;
+            font-size: 8px;
+            color: #5D4E37;
+            font-family: serif;
+            line-height: 8px;
+            text-align: center;
+        }
+
+        @keyframes rise {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-200px) scale(0.3);
+                opacity: 0;
+            }
+        }
+
+        /* 动态宝箱 - 盖子动画 */
+        .chest-lid {
+            transform-origin: 48px 120px; /* 左侧铰链位置 */
+            animation: lid-open-close 4s ease-in-out infinite;
+        }
+
+        @keyframes lid-open-close {
+            0%, 100% {
+                transform: rotate(0deg);
+            }
+            50% {
+                transform: rotate(-15deg);
+            }
+        }
+
+        .treasure-illustration svg .fill-box-body {
+            fill: #D4C4A8;
+            stroke: #8b7355;
+        }
+
+        .treasure-illustration svg .fill-box-lid {
+            fill: #C9B896;
+            stroke: #8b7355;
+        }
+
+        .treasure-illustration svg .fill-lock {
+            fill: #C9A961;
+            stroke: #8b7355;
+        }
+
+        .treasure-illustration svg .fill-magic-circle {
+            fill: rgba(201, 169, 97, 0.15);
+            stroke: #8b7355;
+        }
+
+        .treasure-illustration svg .decorative {
+            stroke: #8b7355;
+            stroke-width: 1.5;
+        }
+
+        .treasure-count {
+            font-size: 13px;
+            color: #8b7355;
+            margin-top: 32px;
+            letter-spacing: 1px;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #8b7355;
+            font-size: 15px;
+            margin-bottom: 32px;
+            font-style: italic;
+        }
+
+        /* ==================== 抽取页 ==================== */
+        #drawPage {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .draw-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+        }
+
+        .draw-animation {
+            width: 280px;
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 32px;
+            position: relative;
+        }
+
+        /* 外圈 - 慢速旋转 */
+        .outer-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: spin-slow 8s linear infinite;
+        }
+
+        /* 中圈 - 中速反向旋转 */
+        .middle-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: spin-reverse 5s linear infinite;
+        }
+
+        /* 内圈 - 快速旋转 + 脉动 */
+        .inner-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: spin-fast 3s linear infinite, pulse 2s ease-in-out infinite;
+        }
+
+        /* 符文圈 - 中速旋转 */
+        .rune-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: spin-medium 6s linear infinite;
+        }
+
+        /* 中心星 - 脉动 + 慢速旋转 */
+        .center-star {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: spin-slow 10s linear infinite, pulse-star 3s ease-in-out infinite;
+        }
+
+        /* 动画定义 */
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-medium {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-fast {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes spin-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.08) rotate(180deg); }
+        }
+
+        @keyframes pulse-star {
+            0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.9; }
+            50% { transform: scale(1.15) rotate(180deg); opacity: 1; }
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .draw-text {
+            font-size: 15px;
+            color: #8b7355;
+            font-style: italic;
+            text-align: center;
+        }
+
+        /* ==================== 我的页 ==================== */
+        #profilePage {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-content {
+            flex: 1;
+            padding: 20px 20px;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(61, 47, 47, 0.2);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 12px;
+            border: 2px solid rgba(61, 47, 47, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            position: relative;
+        }
+
+        .profile-avatar svg {
+            width: 50px;
+            height: 50px;
+            stroke: #8b7355;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .profile-name {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #3D2F2F;
+        }
+
+        .profile-id {
+            font-size: 12px;
+            color: #8b7355;
+            font-family: 'Courier New', monospace;
+        }
+
+        .stats-section {
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .stat-item {
+            padding: 16px;
+            background: #F5F2EA;
+            border: 2px solid rgba(61, 47, 47, 0.15);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #C9A961;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #8b7355;
+            letter-spacing: 0.5px;
+        }
+
+        .settings-section {
+            margin-top: 20px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            color: #8b7355;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 20px;
+            height: 2px;
+            background: #8b7355;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(212, 207, 195, 0.5);
+            cursor: pointer;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .setting-icon {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8b7355;
+            font-size: 18px;
+        }
+
+        .setting-icon svg {
+            width: 22px;
+            height: 22px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .setting-label {
+            font-size: 15px;
+            color: #3D2F2F;
+        }
+
+        .setting-label.danger {
+            color: #A64B3A;
+        }
+
+        .setting-arrow {
+            color: #8b7355;
+            font-size: 18px;
+        }
+
+        /* 音频设置项（背景音乐、交互音效） */
+        .audio-setting-item {
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(212, 207, 195, 0.5);
+        }
+
+        .audio-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            max-width: 200px;
+        }
+
+        .volume-icon-btn {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            color: #8b7355;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .volume-icon-btn:hover {
+            color: #C9A961;
+            transform: scale(1.1);
+        }
+
+        .volume-icon-btn:active {
+            transform: scale(0.95);
+        }
+
+        .volume-icon-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* 静音状态 */
+        .volume-icon-btn.muted svg path:nth-child(2),
+        .volume-icon-btn.muted svg path:nth-child(3) {
+            display: none;
+        }
+
+        .volume-slider-container {
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .volume-value {
+            font-size: 12px;
+            color: #8b7355;
+            min-width: 38px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* 音量控制（旧样式，保留兼容） */
+        .volume-control {
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(212, 207, 195, 0.5);
+        }
+
+        .volume-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #8b7355;
+            margin-bottom: 8px;
+            padding: 0 4px;
+        }
+
+        .volume-slider {
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(212, 207, 195, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #C9A961;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #C9A961;
+            cursor: pointer;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .volume-slider::-moz-range-thumb:hover {
+            transform: scale(1.2);
+        }
+
+        /* ==================== 遮罩和弹窗 ==================== */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 500;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            .overlay {
+                position: absolute;
+                border-radius: 32px;
+            }
+        }
+
+        .overlay.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* 宝藏预览弹窗 */
+        .treasure-preview-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 340px;
+            max-height: 85vh;
+            overflow-y: auto;
+            background: #E8E4D9;
+            border: none;
+            border-radius: 16px;
+            padding: 40px 24px 24px;  /* 增加顶部留白从28px到40px */
+            z-index: 600;
+            animation: scaleIn 0.4s ease;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (min-width: 768px) {
+            .treasure-preview-modal {
+                max-width: 300px;
+            }
+        }
+
+        .treasure-preview-modal.active {
+            display: block;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            background: transparent;
+            border: none;
+            color: #3D2F2F;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            line-height: 1;
+        }
+
+        .modal-close:active {
+            color: #8b7355;
+        }
+
+        .preview-treasure-icon {
+            width: 100px;  /* 从200px缩小到100px */
+            height: 100px;
+            margin: 0 auto 24px;
+            position: relative;
+        }
+
+        /* 魔法阵容器 */
+        .magic-circle-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 样式1: 经典六芒星环 */
+        .circle-classic .outer-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid #C9A961;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: rotate 20s linear infinite;
+        }
+
+        .circle-classic .inner-ring {
+            position: absolute;
+            width: 85%;
+            height: 85%;
+            left: 7.5%;
+            top: 7.5%;
+            border: 2px solid #C9A961;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: rotate-reverse 15s linear infinite;
+        }
+
+        .circle-classic .dots-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: rotate 30s linear infinite;
+        }
+
+        .circle-classic .dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #C9A961;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(201, 169, 97, 0.6);
+        }
+
+        /* 样式2: 符文三环 */
+        .circle-rune .ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #C9A961;
+            border-radius: 50%;
+        }
+
+        .circle-rune .ring-1 { 
+            opacity: 0.8;
+            animation: rotate 20s linear infinite;
+        }
+        .circle-rune .ring-2 { 
+            width: 90%;
+            height: 90%;
+            left: 5%;
+            top: 5%;
+            opacity: 0.6;
+            border-style: dashed;
+            animation: rotate-reverse 25s linear infinite;
+        }
+        .circle-rune .ring-3 { 
+            width: 75%;
+            height: 75%;
+            left: 12.5%;
+            top: 12.5%;
+            opacity: 0.4;
+            animation: rotate 18s linear infinite;
+        }
+
+        .circle-rune .rune-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: rotate 35s linear infinite;
+        }
+
+        .circle-rune .rune-symbol {
+            position: absolute;
+            font-size: 12px;  /* 从14px缩小到12px */
+            color: #C9A961;
+            font-weight: bold;
+            text-shadow: 0 0 6px rgba(201, 169, 97, 0.6);
+        }
+
+        /* 样式3: 阴阳螺旋环 */
+        .circle-spiral .spiral-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top-color: #C9A961;
+            border-right-color: #C9A961;
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: rotate 20s linear infinite;
+        }
+
+        .circle-spiral .spiral-ring-2 {
+            position: absolute;
+            width: 85%;
+            height: 85%;
+            left: 7.5%;
+            top: 7.5%;
+            border: 3px solid transparent;
+            border-left-color: #C9A961;
+            border-bottom-color: #C9A961;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: rotate-reverse 15s linear infinite;
+        }
+
+        /* 样式6: 古文封印环 */
+        .circle-ancient .ancient-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px double #C9A961;
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: rotate 20s linear infinite;
+        }
+
+        .circle-ancient .inner-ancient {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            left: 10%;
+            top: 10%;
+            border: 2px solid #C9A961;
+            border-radius: 50%;
+            opacity: 0.5;
+            animation: rotate-reverse 15s linear infinite;
+        }
+
+        .circle-ancient .ancient-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: rotate 40s linear infinite;
+        }
+
+        .circle-ancient .ancient-symbol {
+            position: absolute;
+            font-size: 18px;
+            color: #C9A961;
+            font-family: serif;
+            text-shadow: 0 0 8px rgba(201, 169, 97, 0.6);
+        }
+
+        /* 粒子容器 */
+        .particles-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* 单个粒子 */
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #C9A961;
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            opacity: 0;
+            box-shadow: 0 0 4px rgba(201, 169, 97, 0.8);
+        }
+
+        /* 粒子发散动画 */
+        @keyframes particle-burst {
+            0% {
+                transform: translate(-50%, -50%) translate(0, 0) scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(0.2);
+                opacity: 0;
+            }
+        }
+
+        /* 宝藏SVG图标 */
+        .treasure-svg-icon {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            width: 60px;  /* 从120px缩小到60px */
+            height: 60px;
+            filter: drop-shadow(0 2px 8px rgba(201, 169, 97, 0.4));
+            /* animation: treasure-float 3s ease-in-out infinite; 已移除浮动 */
+        }
+
+        /* 宝藏浮动动画 - 以圆心为基准上下浮动 */
+        @keyframes treasure-float {
+            0%, 100% {
+                transform: translate(-50%, calc(-50% + 4px));  /* 向下4px */
+            }
+            50% {
+                transform: translate(-50%, calc(-50% - 4px));  /* 向上4px */
+            }
+        }
+
+        /* 旋转动画 */
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes rotate-reverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+
+        .preview-treasure-name {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 20px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 16px;
+            color: #3D2F2F;
+            letter-spacing: 1px;
+        }
+
+        .preview-treasure-content {
+            font-size: 14px;
+            line-height: 1.7;
+            color: #3D2F2F;
+            margin-bottom: 16px;
+            padding: 14px;
+            background: rgba(61, 47, 47, 0.03);
+            border: 1px solid rgba(61, 47, 47, 0.08);
+            border-radius: 10px;
+            max-height: 140px;
+            overflow-y: auto;
+        }
+
+        .preview-treasure-meta {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(61, 47, 47, 0.08);
+        }
+
+        .preview-emotion-tag {
+            padding: 6px 14px;
+            color: #FFFFFF;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 情绪tag颜色（使用emotion-icon的颜色作为背景） */
+        .preview-emotion-tag .emotion-icon {
+            display: none; /* 隐藏小圆点，只用文字 */
+        }
+        
+        /* 根据情绪设置preview-emotion-tag背景色 */
+        .preview-emotion-tag:has(.emotion-icon.舒爽) { background: #E8A95D; }
+        .preview-emotion-tag:has(.emotion-icon.明媚) { background: #F4D06F; color: #3D2F2F; } /* 明媚用深色文字 */
+        .preview-emotion-tag:has(.emotion-icon.灵感涌现) { background: #5B8C8A; }
+        .preview-emotion-tag:has(.emotion-icon.平静) { background: #7B9BA8; }
+        .preview-emotion-tag:has(.emotion-icon.自我安抚) { background: #A0937D; }
+        .preview-emotion-tag:has(.emotion-icon.烦躁) { background: #C77E6B; }
+        .preview-emotion-tag:has(.emotion-icon.焦虑) { background: #9B7FA5; }
+        .preview-emotion-tag:has(.emotion-icon.负重) { background: #6D6458; }
+        .preview-emotion-tag:has(.emotion-icon.愤怒) { background: #A64B3A; }
+
+        .preview-treasure-time {
+            font-size: 11px;
+            color: #8b7355;
+            font-family: 'Courier New', monospace;
+            opacity: 0.8;
+        }
+
+        .preview-crow-comment {
+            font-size: 13px;
+            color: #8b7355;
+            font-style: italic;
+            text-align: center;
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+
+        .preview-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .preview-btn {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-btn.cancel {
+            background: transparent;
+            color: #8b7355;
+            border: none;
+            height: 44px;
+            font-size: 15px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .preview-btn.cancel:active {
+            background: transparent;
+            color: #5a4a3a;
+            transform: scale(0.96);
+        }
+
+        .preview-btn.save {
+            background: #C9A961;
+            color: #3D2F2F;
+            border: none;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(201, 169, 97, 0.3);
+        }
+
+        .preview-btn.save:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 4px rgba(201, 169, 97, 0.3);
+        }
+
+        /* 宝藏卡弹窗（抽取后） */
+        .treasure-card-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 340px;
+            max-height: 85vh;
+            overflow-y: auto;
+            background: #E8E4D9;
+            border: none;
+            border-radius: 16px;
+            padding: 40px 24px 24px;  /* 增加顶部留白从28px到40px */
+            z-index: 600;
+            animation: scaleIn 0.4s ease;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (min-width: 768px) {
+            .treasure-card-modal {
+                max-width: 300px;
+            }
+        }
+
+        .treasure-card-modal.active {
+            display: block;
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
+            background: rgba(61, 47, 47, 0.06);
+            border: none;
+            border-radius: 18px;
+            color: #3D2F2F;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            line-height: 1;
+        }
+
+        .modal-close-btn:active {
+            transform: scale(0.92);
+            background: rgba(61, 47, 47, 0.1);
+        }
+
+        .modal-handle {
+            display: none;
+        }
+
+        .treasure-card-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 24px;
+            position: relative;
+        }
+
+        .treasure-card-name {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #3D2F2F;
+            letter-spacing: 2px;
+        }
+
+        .treasure-card-content {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #3D2F2F;
+            margin: 20px 0;
+            padding: 20px;
+            background: #F5F2EA;
+            border: 1px solid #D4CFC3;
+            border-radius: 8px;
+        }
+
+        .delete-btn {
+            width: 100%;
+            height: 44px;
+            background: none;
+            border: none;
+            color: #A64B3A;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 16px;
+            letter-spacing: 1px;
+        }
+
+        /* 确认对话框 */
+        .confirm-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #E8E4D9;
+            border: 3px solid #3D2F2F;
+            border-radius: 8px;
+            padding: 32px 24px;
+            width: 85%;
+            max-width: 300px;
+            z-index: 700;
+        }
+
+        @media (min-width: 768px) {
+            .confirm-dialog {
+                position: absolute;
+                max-width: 280px;
+            }
+        }
+
+        .confirm-dialog.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .confirm-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            text-align: center;
+            color: #3D2F2F;
+            letter-spacing: 2px;
+        }
+
+        .confirm-message {
+            font-size: 14px;
+            color: #5a4a3a;
+            text-align: center;
+            margin-bottom: 28px;
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+
+        .confirm-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .confirm-btn {
+            flex: 1;
+            height: 46px;
+            border: 2px solid #3D2F2F;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+
+        .confirm-btn.cancel {
+            background: transparent;
+            color: #3D2F2F;
+        }
+
+        .confirm-btn.confirm {
+            background: #C9A961;
+            color: #3D2F2F;
+        }
+
+        .confirm-btn.danger {
+            background: #A64B3A;
+            color: #E8E4D9;
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 16px 32px;
+            background: rgba(61, 47, 47, 0.95);
+            color: #E8E4D9;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 1000;
+            animation: fadeInOut 2s ease;
+            letter-spacing: 1px;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            10%, 90% { opacity: 1; }
+        }
+
+        /* AI设置样式已移除 - 开发者模式 */
+            box-shadow: 0 2px 8px rgba(201, 169, 97, 0.3);
+        }
+
+        .api-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(201, 169, 97, 0.4);
+        }
+
+        .api-btn:active {
+            transform: scale(0.98);
+        }
+
+        .ai-status {
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        /* ✅修复：让百分比高度在手机上有"参照物" */
+        html, body {
+            height: 100%;
+        }
+
+        /* ✅修复：手机端给 phone-screen 一个明确 height（不要只用 min-height） */
+        @media (max-width: 767px) {
+            #phone-screen {
+                height: 100vh;      /* 关键 */
+                min-height: 100vh;  /* 你原本就有，保留也行 */
+            }
+            #app {
+                height: 100%;
+                min-height: 100vh;
+                position: relative; /* 让绝对定位的 page 有参照 */
+            }
+        }
+
+        /* 火花四射点击效果 */
+        .spark {
+            position: absolute;
+            width: 3px;
+            height: 12px;
+            background: linear-gradient(to bottom, #F4D06F, #E8A95D);
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        @keyframes spark-fly {
+            0% {
+                transform: translate(0, 0) rotate(var(--rotation)) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) rotate(var(--rotation)) scale(0);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="phone-simulator">
+        <div id="phone-screen">
+            <div id="app">
+                <!-- 记录页 -->
+                <div id="recordPage" class="page active">
+                    <div class="nav-bar">
+                        <div class="title">记录想法</div>
+                    </div>
+
+                    <div class="record-content">
+                        <div class="page-icon">
+                            <svg viewBox="0 0 48 48">
+                                <!-- 外圆 -->
+                                <circle cx="24" cy="24" r="20" />
+                                <!-- 六芒星 - 上三角 -->
+                                <path d="M 24 8 L 38 32 L 10 32 Z" />
+                                <!-- 六芒星 - 下三角 -->
+                                <path d="M 24 40 L 10 16 L 38 16 Z" />
+                                <!-- 内圆 -->
+                                <circle cx="24" cy="24" r="8" />
+                                <!-- 装饰小圆点 -->
+                                <circle cx="24" cy="4" r="1.5" class="fill-eye" />
+                                <circle cx="41.5" cy="14" r="1.5" class="fill-eye" />
+                                <circle cx="41.5" cy="34" r="1.5" class="fill-eye" />
+                                <circle cx="24" cy="44" r="1.5" class="fill-eye" />
+                                <circle cx="6.5" cy="34" r="1.5" class="fill-eye" />
+                                <circle cx="6.5" cy="14" r="1.5" class="fill-eye" />
+                            </svg>
+                        </div>
+                        <div class="page-title">乌鸦的宝藏</div>
+                        <div class="page-subtitle">"将情绪收藏于时光的宝箱，<br>待往后岁月慢慢启封。"</div>
+
+                        <div class="emotion-selector">
+                            <div class="section-label">今日携来何物？</div>
+                            <div class="emotion-list" id="emotionList"></div>
+                        </div>
+
+                        <div class="input-area">
+                            <div class="section-label">铭刻此刻心绪</div>
+                            <textarea class="text-input" id="contentInput" placeholder="写下你想记住的..."></textarea>
+                        </div>
+
+                        <button class="primary-button" id="generateBtn" disabled>生成宝藏</button>
+                    </div>
+                </div>
+
+                <!-- 宝箱页 -->
+                <div id="treasureBoxPage" class="page">
+                    <div class="nav-bar">
+                        <div class="title">宝箱</div>
+                    </div>
+
+                    <div class="treasure-box-content" id="treasureBoxContent"></div>
+                </div>
+
+                <!-- 抽取页 -->
+                <div id="drawPage" class="page">
+                    <div class="nav-bar">
+                        <button class="back-btn" onclick="showPage('treasureBox')">←</button>
+                        <div class="title">抽取中</div>
+                    </div>
+
+                    <div class="draw-content">
+                        <div class="draw-animation">
+                            <!-- 外圈 - 慢速旋转 -->
+                            <svg class="outer-ring" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="140" cy="140" r="135" fill="none" stroke="#C9A961" stroke-width="2"/>
+                                <circle cx="140" cy="140" r="125" fill="none" stroke="#C9A961" stroke-width="1" stroke-dasharray="8,8"/>
+                                
+                                <!-- 四个方位的装饰符号 -->
+                                <text x="140" y="20" font-size="18" fill="#C9A961" text-anchor="middle">✦</text>
+                                <text x="260" y="145" font-size="18" fill="#C9A961" text-anchor="middle">✦</text>
+                                <text x="140" y="270" font-size="18" fill="#C9A961" text-anchor="middle">✦</text>
+                                <text x="20" y="145" font-size="18" fill="#C9A961" text-anchor="middle">✦</text>
+                            </svg>
+
+                            <!-- 符文圈 - 中速旋转 -->
+                            <svg class="rune-ring" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="140" cy="140" r="107" fill="none" stroke="#5D4E37" stroke-width="1.5"/>
+                                
+                                <!-- 八个方位的符文 -->
+                                <text x="140" y="45" font-size="22" fill="#5D4E37" text-anchor="middle" font-family="serif">ᚱ</text>
+                                <text x="199" y="81" font-size="22" fill="#5D4E37" text-anchor="middle" font-family="serif">ᚨ</text>
+                                <text x="233" y="145" font-size="22" fill="#5D4E37" text-anchor="middle" font-family="serif">ᚹ</text>
+                                <text x="199" y="209" font-size="22" fill="#5D4E37" text-anchor="middle" font-family="serif">ᛖ</text>
+                                <text x="140" y="245" font-size="22" fill="#5D4E37" text-anchor="middle" font-family="serif">ᚾ</text>
+                                <text x="81" y="209" font-size="22" fill="#5D4E37" text-anchor="middle" font-family="serif">ᛏ</text>
+                                <text x="47" y="145" font-size="22" fill="#5D4E37" text-anchor="middle" font-family="serif">ᚱ</text>
+                                <text x="81" y="81" font-size="22" fill="#5D4E37" text-anchor="middle" font-family="serif">ᛖ</text>
+                            </svg>
+
+                            <!-- 中圈 - 中速反向旋转 -->
+                            <svg class="middle-ring" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="140" cy="140" r="93" fill="none" stroke="#C9A961" stroke-width="2"/>
+                                <circle cx="140" cy="140" r="84" fill="none" stroke="#5D4E37" stroke-width="1" stroke-dasharray="5,5"/>
+                                
+                                <!-- 六个小圆点 -->
+                                <circle cx="140" cy="47" r="4" fill="#C9A961"/>
+                                <circle cx="221" cy="99" r="4" fill="#C9A961"/>
+                                <circle cx="221" cy="181" r="4" fill="#C9A961"/>
+                                <circle cx="140" cy="233" r="4" fill="#C9A961"/>
+                                <circle cx="59" cy="181" r="4" fill="#C9A961"/>
+                                <circle cx="59" cy="99" r="4" fill="#C9A961"/>
+                            </svg>
+
+                            <!-- 内圈 - 快速旋转 + 脉动 -->
+                            <svg class="inner-ring" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="140" cy="140" r="70" fill="none" stroke="#5D4E37" stroke-width="2"/>
+                                <circle cx="140" cy="140" r="61" fill="none" stroke="#C9A961" stroke-width="1" stroke-dasharray="4,4"/>
+                            </svg>
+
+                            <!-- 中心六芒星 - 脉动 + 慢速旋转 -->
+                            <svg class="center-star" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+                                <!-- 标准六芒星 -->
+                                <!-- 上三角 -->
+                                <path d="M 140 84 L 188 168 L 92 168 Z" 
+                                      fill="none" stroke="#C9A961" stroke-width="3"/>
+                                
+                                <!-- 下三角 -->
+                                <path d="M 140 196 L 92 112 L 188 112 Z" 
+                                      fill="none" stroke="#C9A961" stroke-width="3"/>
+                                
+                                <!-- 内部正六边形 -->
+                                <path d="M 140 116 L 161 127 L 161 153 L 140 164 L 119 153 L 119 127 Z" 
+                                      fill="none" stroke="#5D4E37" stroke-width="2"/>
+                                
+                                <!-- 六个交点的小圆 -->
+                                <circle cx="140" cy="116" r="3.5" fill="#C9A961"/>
+                                <circle cx="161" cy="127" r="3.5" fill="#C9A961"/>
+                                <circle cx="161" cy="153" r="3.5" fill="#C9A961"/>
+                                <circle cx="140" cy="164" r="3.5" fill="#C9A961"/>
+                                <circle cx="119" cy="153" r="3.5" fill="#C9A961"/>
+                                <circle cx="119" cy="127" r="3.5" fill="#C9A961"/>
+                                
+                                <!-- 中心圆 -->
+                                <circle cx="140" cy="140" r="19" fill="none" stroke="#5D4E37" stroke-width="2"/>
+                                <circle cx="140" cy="140" r="11" fill="#C9A961" opacity="0.6"/>
+                                <circle cx="140" cy="140" r="6" fill="#5D4E37"/>
+                            </svg>
+                        </div>
+                        <div class="draw-text">看看这次会获取什么。</div>
+                    </div>
+                </div>
+
+                <!-- 我的页 -->
+                <div id="profilePage" class="page">
+                    <div class="nav-bar">
+                        <div class="title">我的</div>
+                    </div>
+
+                    <div class="profile-content">
+                        <div class="profile-header">
+                            <div class="profile-avatar">
+                                <svg viewBox="0 0 48 48">
+                                    <circle cx="24" cy="18" r="10" />
+                                    <path d="M 8 42 Q 8 30 24 30 Q 40 30 40 42" />
+                                </svg>
+                            </div>
+                            <div class="profile-name">漫客旅人</div>
+                            <div class="profile-id">编号：@guest</div>
+                        </div>
+
+                        <div class="stats-section">
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-value" id="profileTreasureCount">0</div>
+                                    <div class="stat-label">宝藏总数</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value" id="profileRecordDays">0</div>
+                                    <div class="stat-label">记录天数</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-section">
+                            <!-- 背景音乐 -->
+                            <div class="audio-setting-item">
+                                <div class="audio-header">
+                                    <div class="setting-left">
+                                        <div class="setting-icon">
+                                            <svg viewBox="0 0 24 24">
+                                                <path d="M9 18V5l12-2v13" />
+                                                <circle cx="6" cy="18" r="3" />
+                                                <circle cx="18" cy="16" r="3" />
+                                            </svg>
+                                        </div>
+                                        <div class="setting-label">背景音乐</div>
+                                    </div>
+                                    <div class="audio-controls">
+                                        <button class="volume-icon-btn" onclick="toggleMusic()" id="musicIconBtn">
+                                            <svg viewBox="0 0 24 24" id="musicVolumeIcon">
+                                                <!-- 喇叭 -->
+                                                <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+                                                <!-- 音波 -->
+                                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                                            </svg>
+                                        </button>
+                                        <div class="volume-slider-container">
+                                            <input type="range" id="volumeSlider" min="0" max="100" value="30" class="volume-slider" oninput="updateVolume(this.value)">
+                                        </div>
+                                        <span class="volume-value" id="volumeValue">30%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 交互音效 -->
+                            <div class="audio-setting-item">
+                                <div class="audio-header">
+                                    <div class="setting-left">
+                                        <div class="setting-icon">
+                                            <svg viewBox="0 0 24 24">
+                                                <circle cx="12" cy="12" r="10"/>
+                                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                                            </svg>
+                                        </div>
+                                        <div class="setting-label">交互音效</div>
+                                    </div>
+                                    <div class="audio-controls">
+                                        <button class="volume-icon-btn" onclick="toggleSFX()" id="sfxIconBtn">
+                                            <svg viewBox="0 0 24 24" id="sfxVolumeIcon">
+                                                <!-- 喇叭 -->
+                                                <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+                                                <!-- 音波 -->
+                                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+                                            </svg>
+                                        </button>
+                                        <div class="volume-slider-container">
+                                            <input type="range" id="sfxVolumeSlider" min="0" max="100" value="100" class="volume-slider" oninput="updateSFXVolume(this.value)">
+                                        </div>
+                                        <span class="volume-value" id="sfxVolumeValue">100%</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- AI设置已移除 - 开发者模式 -->
+                            
+                            <div class="setting-item" onclick="showAbout()">
+                                <div class="setting-left">
+                                    <div class="setting-icon">
+                                        <svg viewBox="0 0 24 24">
+                                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                                            <line x1="10" y1="10" x2="16" y2="10" />
+                                            <line x1="10" y1="14" x2="16" y2="14" />
+                                        </svg>
+                                    </div>
+                                    <div class="setting-label">使用手册</div>
+                                </div>
+                                <div class="setting-arrow">→</div>
+                            </div>
+
+                            <div class="setting-item" onclick="confirmClearAll()">
+                                <div class="setting-left">
+                                    <div class="setting-icon">
+                                        <svg viewBox="0 0 24 24">
+                                            <polyline points="3 6 5 6 21 6" />
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                            <line x1="10" y1="11" x2="10" y2="17" />
+                                            <line x1="14" y1="11" x2="14" y2="17" />
+                                        </svg>
+                                    </div>
+                                    <div class="setting-label danger">清空所有宝藏</div>
+                                </div>
+                                <div class="setting-arrow">→</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部TabBar -->
+                <div class="tab-bar">
+                    <button class="tab-item active" onclick="showPage('record')">
+                        <div class="tab-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M12 20h9" />
+                                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                            </svg>
+                        </div>
+                        <div>记录</div>
+                        <div class="tab-line"></div>
+                    </button>
+                    <button class="tab-item" onclick="showPage('treasureBox')">
+                        <div class="tab-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                                <line x1="12" y1="22.08" x2="12" y2="12" />
+                            </svg>
+                        </div>
+                        <div>宝箱</div>
+                        <div class="tab-line"></div>
+                    </button>
+                    <button class="tab-item" onclick="showPage('profile')">
+                        <div class="tab-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                <circle cx="12" cy="7" r="4" />
+                            </svg>
+                        </div>
+                        <div>我的</div>
+                        <div class="tab-line"></div>
+                    </button>
+                </div>
+
+                <!-- 遮罩层 -->
+                <div class="overlay" id="overlay" onclick="closeModal()"></div>
+
+                <!-- 宝藏预览弹窗 -->
+                <div class="treasure-preview-modal" id="treasurePreviewModal"></div>
+
+                <!-- 宝藏卡弹窗 -->
+                <div class="treasure-card-modal" id="treasureCardModal"></div>
+
+                <!-- 确认对话框 -->
+                <div class="confirm-dialog" id="confirmDialog"></div>
+                
+                <!-- API Key对话框已移除 - 开发者模式 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== AI增强配置 ====================
+        
+        // AI配置
+        const AI_CONFIG = {
+            provider: 'deepseek',
+            // ✅ 生产环境：通过 Netlify Functions 代理调用（避免在前端暴露 API Key）
+            // （netlify.toml 已把 /api/treasure 转发到 /.netlify/functions/treasure）
+            endpoint: '/api/treasure',
+            model: 'deepseek-chat',
+            maxTokens: 200,
+            temperature: 0.8,
+            timeout: 8000 // 8秒超时
+        };
+        
+        // AI System Prompt
+        const AI_SYSTEM_PROMPT = `你是一只神秘的乌鸦，负责为用户的情绪记录赋予宝藏之名。
+
+角色设定：
+- 你是古老而智慧的守护者
+- 你的语言简洁、充满诗意和哲理
+- 你善于发现平凡中的珍贵之处
+
+任务：
+1. 根据用户的情绪和内容，创造一个独特的宝藏名称（4-7个字）
+2. 写一句乌鸦点评（15-30字），给予温暖的鼓励或深刻的洞察
+
+宝藏名称要求：
+- 富有诗意和象征意义
+- 与情绪和内容相关
+- 可以是物品、自然现象、或抽象概念
+- 示例：晨光金币、静水护符、思绪之瓶、破晓者的徽章、回响的铃铛
+
+点评要求：
+- 温暖、鼓励、有洞察力
+- 简短有力，像一句箴言
+- 避免陈词滥调
+- 第二人称叙述（"你"）
+- 不要使用"加油"等口号式的话
+
+情绪类型说明：
+- 舒爽：完成挑战、达成目标、克服困难后的轻松愉悦
+- 明媚：单纯的快乐、美好的体验、温暖的时刻
+- 灵感涌现：创意迸发、思维活跃、新想法产生
+- 平静：内心安宁、放松、与自己和解
+- 自我安抚：给予自己关怀、接纳情绪、温柔对待自己
+- 烦躁：轻度焦虑、不耐烦、被琐事困扰
+- 焦虑：担忧、不安、对未来的恐惧
+- 负重：压力、责任、疲惫、沉重感
+- 愤怒：愤慨、不公、被冒犯、强烈情绪
+
+回复格式（必须是纯JSON，不要有其他文字）：
+{
+  "treasure_name": "宝藏名称",
+  "crow_comment": "乌鸦点评"
+}`;
+        
+        // AI用户Prompt生成函数
+        function generateUserPrompt(emotion, content) {
+            return `情绪：${emotion}
+记录内容：${content}
+
+请为这段记录创造一个宝藏名称，并给出你的点评。记住要用纯JSON格式回复。`;
+        }
+        
+        // AI服务类
+        class AITreasureService {
+            constructor() {
+                // ✅ 生产环境：API Key 不再放在前端。由 Netlify Functions 读取环境变量并代为请求。
+                // 前端只需要调用本网站的 /.netlify/functions/treasure
+                
+                this.isOnline = navigator.onLine;
+                this.lastRequestTime = 0;
+                this.minRequestInterval = 1000; // 最小请求间隔1秒
+                this.requestCount = 0;
+                this.maxRequestsPerMinute = 30;
+                this.requestTimes = [];
+                
+                // 监听网络状态
+                window.addEventListener('online', () => {
+                    this.isOnline = true;
+                });
+                window.addEventListener('offline', () => {
+                    this.isOnline = false;
+                });
+            }
+            
+            // 检测API Key是否配置（生产环境：Key 在服务器侧，这里只要联网即可）
+            hasAPIKey() {
+                return true;
+            }
+            
+            // 获取当前模式
+            getCurrentMode() {
+                if (!this.hasAPIKey()) return 'local';
+                if (!this.isOnline) return 'offline';
+                return 'ai';
+            }
+            
+            // 速率限制检查
+            canMakeRequest() {
+                const now = Date.now();
+                
+                // 检查最小间隔
+                if (now - this.lastRequestTime < this.minRequestInterval) {
+                    return false;
+                }
+                
+                // 检查每分钟请求数
+                this.requestTimes = this.requestTimes.filter(time => now - time < 60000);
+                if (this.requestTimes.length >= this.maxRequestsPerMinute) {
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // 记录请求
+            recordRequest() {
+                const now = Date.now();
+                this.lastRequestTime = now;
+                this.requestTimes.push(now);
+            }
+            
+            // 主要生成函数
+            async generateTreasure(emotion, content) {
+                console.log('🎯 开始生成宝藏:', { emotion, content });
+                console.log('🌐 网络状态:', this.isOnline);
+                
+                // 1. 检查是否可以使用AI
+                if (!this.isOnline || !this.hasAPIKey()) {
+                    console.log('📚 使用本地模式 - 原因:', !this.isOnline ? '网络离线' : 'API Key未配置');
+                    return this.generateLocalTreasure(emotion);
+                }
+                
+                // 2. 速率限制检查
+                if (!this.canMakeRequest()) {
+                    console.log('⏱️ 请求过于频繁，使用本地模式');
+                    return this.generateLocalTreasure(emotion);
+                }
+                
+                try {
+                    console.log('🤖 尝试使用AI生成...');
+                    
+                    // 3. 调用AI API
+                    const result = await this.callDeepSeekAPI(emotion, content);
+                    
+                    // 4. 验证结果
+                    if (this.validateAIResponse(result)) {
+                        console.log('✨ AI生成成功');
+                        this.recordRequest();
+                        return {
+                            ...result,
+                            source: 'ai',
+                            emotion: emotion
+                        };
+                    } else {
+                        throw new Error('AI响应格式无效');
+                    }
+                    
+                } catch (error) {
+                    console.warn('AI生成失败，降级到本地模式:', error.message);
+                    return this.generateLocalTreasure(emotion);
+                }
+            }
+            
+            // 调用DeepSeek API
+            async callDeepSeekAPI(emotion, content) {
+                console.log('📡 正在调用DeepSeek API...');
+                console.log('🔗 Endpoint:', AI_CONFIG.endpoint);
+                console.log('🤖 Model:', AI_CONFIG.model);
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), AI_CONFIG.timeout);
+                
+                try {
+                    // ✅ 前端只把必要信息发给本站的 Function
+                    const requestBody = {
+                        emotion,
+                        content,
+                        model: AI_CONFIG.model,
+                        maxTokens: AI_CONFIG.maxTokens,
+                        temperature: AI_CONFIG.temperature
+                    };
+
+                    const response = await fetch(AI_CONFIG.endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(requestBody),
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    console.log('📥 响应状态:', response.status, response.statusText);
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        console.error('❌ API错误响应:', errorData);
+                        throw new Error(`API错误 ${response.status}: ${errorData.error?.message || 'Unknown error'}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log('✅ API响应成功:', data);
+                    
+                    // ✅ Function 已返回标准 JSON：{ treasure_name, crow_comment }
+                    if (!data || typeof data.treasure_name !== 'string') {
+                        console.error('❌ Function响应格式异常:', data);
+                        throw new Error('Function响应格式异常');
+                    }
+                    return data;
+                    
+                } catch (error) {
+                    clearTimeout(timeoutId);
+                    
+                    if (error.name === 'AbortError') {
+                        throw new Error('请求超时');
+                    }
+                    
+                    throw error;
+                }
+            }
+            
+            // 验证AI响应
+            validateAIResponse(result) {
+                return result 
+                    && typeof result.treasure_name === 'string' 
+                    && result.treasure_name.length >= 3
+                    && result.treasure_name.length <= 20
+                    && typeof result.crow_comment === 'string'
+                    && result.crow_comment.length >= 10
+                    && result.crow_comment.length <= 80;
+            }
+            
+            // 本地降级生成
+            generateLocalTreasure(emotion) {
+                const treasures = TREASURE_MAP[emotion] || TREASURE_MAP['舒爽'];
+                const treasure = treasures[Math.floor(Math.random() * treasures.length)];
+                
+                const comment = getRavenComment(emotion);
+                
+                return {
+                    treasure_name: treasure,
+                    crow_comment: comment,
+                    emotion: emotion,
+                    source: 'local'
+                };
+            }
+            
+            // 测试API连接
+            async testConnection() {
+                if (!this.hasAPIKey()) {
+                    return { success: false, message: '请先输入API Key' };
+                }
+                
+                if (!this.isOnline) {
+                    return { success: false, message: '网络未连接' };
+                }
+                
+                try {
+                    const result = await this.callDeepSeekAPI('平静', '这是一个测试');
+                    
+                    if (this.validateAIResponse(result)) {
+                        return { 
+                            success: true, 
+                            message: '连接成功！',
+                            sample: result
+                        };
+                    } else {
+                        return { success: false, message: 'API响应格式异常' };
+                    }
+                } catch (error) {
+                    return { 
+                        success: false, 
+                        message: `连接失败: ${error.message}` 
+                    };
+                }
+            }
+        }
+        
+        // 创建全局AI服务实例
+        const aiService = new AITreasureService();
+        
+        // 🔧 开发者调试工具 - 可在浏览器控制台调用
+        window.testAI = async function() {
+            console.log('\n=== 🧪 AI功能诊断测试 ===');
+            console.log('1️⃣ API Key状态:', aiService.hasAPIKey() ? '✓ 已配置' : '✗ 未配置');
+            console.log('2️⃣ 网络状态:', aiService.isOnline ? '✓ 在线' : '✗ 离线');
+            console.log('3️⃣ 当前模式:', aiService.getCurrentMode());
+            console.log('4️⃣ API配置:', AI_CONFIG);
+            
+            console.log('\n开始测试API调用...');
+            try {
+                const result = await aiService.generateTreasure('明媚', '今天阳光很好，心情愉悦');
+                console.log('✅ 测试成功！生成结果:', result);
+                return result;
+            } catch (error) {
+                console.error('❌ 测试失败:', error);
+                return null;
+            }
+        };
+        
+        console.log('💡 开发者提示：在控制台输入 testAI() 可测试AI功能');
+        
+        // ==================== 音频系统 ====================
+        
+        const AudioSystem = {
+            context: null,
+            bgMusic: null,
+            isMuted: false,
+            musicInterval: null,
+            masterVolume: 0.3, // 默认音量30%
+            sfxVolume: 1.0, // 交互音效音量，默认100%
+            isFirstPlay: true, // 标记是否是第一次播放
+            
+            init() {
+                this.context = new (window.AudioContext || window.webkitAudioContext)();
+                this.createRelaxingCelticMusic();
+            },
+            
+            // 音符频率表
+            noteFreqs: {
+                C4: 261.63, D4: 293.66, F4: 349.23, A4: 440.00, B4: 493.88, C5: 523.25, G4: 392.00
+            },
+            
+            // 创建放松的凯尔特风格音乐（模仿Relaxing Green Nature）
+            createRelaxingCelticMusic() {
+                if (!this.context) return;
+                
+                // 和弦进行 (D小调，放松柔和)
+                const chordProgression = [
+                    { root: 146.83, notes: [146.83, 174.61, 220.00] }, // Dm
+                    { root: 130.81, notes: [130.81, 164.81, 196.00] }, // C
+                    { root: 116.54, notes: [116.54, 146.83, 174.61] }, // Bb
+                    { root: 196.00, notes: [196.00, 246.94, 293.66] }, // G
+                    { root: 146.83, notes: [146.83, 174.61, 220.00] }, // Dm
+                    { root: 174.61, notes: [174.61, 220.00, 261.63] }, // F
+                    { root: 130.81, notes: [130.81, 164.81, 196.00] }, // C
+                    { root: 146.83, notes: [146.83, 174.61, 220.00] }, // Dm
+                ];
+                
+                // 主旋律（竖琴风格）
+                const melodySequence = [
+                    { freq: 293.66, duration: 1.0 },   // D4
+                    { freq: 329.63, duration: 0.5 },   // E4
+                    { freq: 349.23, duration: 0.5 },   // F4
+                    { freq: 392.00, duration: 1.5 },   // G4
+                    { freq: 349.23, duration: 0.5 },   // F4
+                    { freq: 329.63, duration: 0.5 },   // E4
+                    { freq: 293.66, duration: 1.0 },   // D4
+                    { freq: 261.63, duration: 0.5 },   // C4
+                    { freq: 293.66, duration: 2.0 },   // D4
+                    { freq: 220.00, duration: 0.5 },   // A3
+                    { freq: 246.94, duration: 0.5 },   // B3
+                    { freq: 293.66, duration: 1.0 },   // D4
+                    { freq: 349.23, duration: 1.5 },   // F4
+                    { freq: 329.63, duration: 0.5 },   // E4
+                    { freq: 293.66, duration: 2.0 },   // D4
+                ];
+                
+                let melodyIndex = 0;
+                let chordIndex = 0;
+                let isPlaying = false;
+                
+                const playMusic = () => {
+                    if (this.isMuted || !this.context) {
+                        this.musicInterval = setTimeout(playMusic, 100);
+                        return;
+                    }
+                    
+                    const now = this.context.currentTime;
+                    const melody = melodySequence[melodyIndex];
+                    
+                    // 第一个音符淡入500ms（更长，避免轰鸣），其他50ms
+                    const fadeInTime = (melodyIndex === 0) ? 0.5 : 0.05;
+                    
+                    // 播放和弦（吉他/竖琴伴奏）
+                    const chord = chordProgression[chordIndex];
+                    chord.notes.forEach((freq, i) => {
+                        const osc = this.context.createOscillator();
+                        const gain = this.context.createGain();
+                        
+                        osc.type = 'sine'; // 竖琴音色
+                        osc.frequency.setValueAtTime(freq, now);
+                        
+                        const volume = 0.054 * AudioSystem.masterVolume;
+                        const startTime = now + i * 0.05;
+                        
+                        gain.gain.setValueAtTime(0.001, startTime);
+                        gain.gain.linearRampToValueAtTime(volume, startTime + fadeInTime);
+                        gain.gain.setValueAtTime(volume, now + melody.duration - 0.05);
+                        gain.gain.linearRampToValueAtTime(0.001, now + melody.duration);
+                        
+                        osc.connect(gain);
+                        gain.connect(this.context.destination);
+                        
+                        osc.start(startTime);
+                        osc.stop(now + melody.duration + 0.1);
+                    });
+                    
+                    // 播放主旋律
+                    const melOsc = this.context.createOscillator();
+                    const melGain = this.context.createGain();
+                    
+                    melOsc.type = 'triangle'; // 柔和的旋律音色
+                    melOsc.frequency.setValueAtTime(melody.freq, now);
+                    
+                    const melVolume = 0.081 * AudioSystem.masterVolume;
+                    
+                    melGain.gain.setValueAtTime(0.001, now);
+                    melGain.gain.linearRampToValueAtTime(melVolume, now + fadeInTime);
+                    melGain.gain.setValueAtTime(melVolume, now + melody.duration - 0.05);
+                    melGain.gain.linearRampToValueAtTime(0.001, now + melody.duration);
+                    
+                    melOsc.connect(melGain);
+                    melGain.connect(this.context.destination);
+                    
+                    melOsc.start(now);
+                    melOsc.stop(now + melody.duration + 0.1);
+                    
+                    // 播放低音（贝斯）
+                    const bass = this.context.createOscillator();
+                    const bassGain = this.context.createGain();
+                    
+                    bass.type = 'sine';
+                    bass.frequency.setValueAtTime(chord.root * 0.5, now);
+                    
+                    const bassVolume = 0.0675 * AudioSystem.masterVolume;
+                    
+                    bassGain.gain.setValueAtTime(0.001, now);
+                    bassGain.gain.linearRampToValueAtTime(bassVolume, now + fadeInTime);
+                    bassGain.gain.setValueAtTime(bassVolume, now + melody.duration - 0.05);
+                    bassGain.gain.linearRampToValueAtTime(0.001, now + melody.duration);
+                    
+                    bass.connect(bassGain);
+                    bassGain.connect(this.context.destination);
+                    
+                    bass.start(now);
+                    bass.stop(now + melody.duration + 0.1);
+                    
+                    melodyIndex = (melodyIndex + 1) % melodySequence.length;
+                    
+                    // 每4个旋律音符换一个和弦
+                    if (melodyIndex % 4 === 0) {
+                        chordIndex = (chordIndex + 1) % chordProgression.length;
+                    }
+                    
+                    this.musicInterval = setTimeout(playMusic, melody.duration * 1000);
+                };
+                
+                this.bgMusic = {
+                    play: async () => {
+                        if (!isPlaying) {
+                            isPlaying = true;
+                            // 重置音乐索引，从头开始播放
+                            melodyIndex = 0;
+                            chordIndex = 0;
+                            
+                            // 第一次播放时，等待AudioContext完全稳定
+                            if (AudioSystem.isFirstPlay) {
+                                await new Promise(resolve => setTimeout(resolve, 50));
+                            }
+                            
+                            playMusic();
+                        }
+                    },
+                    stop: () => {
+                        isPlaying = false;
+                        if (this.musicInterval) {
+                            clearTimeout(this.musicInterval);
+                        }
+                    }
+                };
+            },
+            
+            // 播放背景音乐
+            async playBGMusic() {
+                if (this.bgMusic && !this.isMuted) {
+                    // 确保AudioContext已恢复（某些浏览器需要用户交互后才能启动）
+                    if (this.context.state === 'suspended') {
+                        await this.context.resume();
+                    }
+                    
+                    // 如果是第一次播放，添加短暂延迟让context完全准备好
+                    if (this.isFirstPlay) {
+                        this.isFirstPlay = false;
+                        // 等待100ms让AudioContext完全初始化
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+                    
+                    this.bgMusic.play();
+                }
+            },
+            
+            // 切换静音
+            toggleMute() {
+                this.isMuted = !this.isMuted;
+                if (this.isMuted && this.bgMusic) {
+                    this.bgMusic.stop();
+                } else if (!this.isMuted && this.bgMusic) {
+                    this.bgMusic.play();
+                }
+                return this.isMuted;
+            },
+            
+            // 设置音量
+            setVolume(value) {
+                this.masterVolume = value;
+                // 更新显示
+                const volumeValue = document.getElementById('volumeValue');
+                if (volumeValue) {
+                    volumeValue.textContent = Math.round(value * 100) + '%';
+                }
+            },
+            
+            // 获取当前音量
+            getVolume() {
+                return this.masterVolume || 1.0;
+            },
+            
+            // === 确认的音效 ===
+            
+            // 1. 增强黑轴点击音效（通用交互）
+            playButtonClick() {
+                if (this.isMuted || !this.context || this.sfxVolume === 0) return;
+                
+                const freq = 200; // 低沉厚重
+                const duration = 0.18; // 放慢50%
+                const now = this.context.currentTime;
+                
+                // 厚重按下阶段 - 音量增加100% (0.63 * 2 = 1.26) * sfxVolume
+                this.createMechanicalNoise(freq, duration * 0.55, 1.26 * this.sfxVolume, now);
+                
+                // 厚重触底阶段 - 音量增加100% (0.675 * 2 = 1.35) * sfxVolume
+                // 使用AudioContext时间调度，立即执行，无延迟
+                this.createMechanicalNoise(freq * 0.9, duration * 0.45, 1.35 * this.sfxVolume, now + duration * 0.55);
+            },
+            
+            // 机械噪音生成器（用于黑轴音效）
+            createMechanicalNoise(centerFreq, duration, volume, startTime) {
+                const bufferSize = this.context.sampleRate * duration;
+                const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate);
+                const data = buffer.getChannelData(0);
+                
+                // 生成噪音模拟机械碰撞
+                for (let i = 0; i < bufferSize; i++) {
+                    const decay = Math.exp(-5 * i / bufferSize);
+                    data[i] = (Math.random() * 2 - 1) * decay;
+                }
+                
+                const noise = this.context.createBufferSource();
+                noise.buffer = buffer;
+                
+                const filter = this.context.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.value = centerFreq;
+                filter.Q.value = 3;
+                
+                const gain = this.context.createGain();
+                gain.gain.setValueAtTime(volume, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+                
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.context.destination);
+                
+                noise.start(startTime);
+                noise.stop(startTime + duration);
+            },
+            
+            // 2. 古老宝箱吱呀音效（修改版，仅第一段长音）
+            playChestOpen() {
+                if (this.isMuted || !this.context || this.sfxVolume === 0) return;
+                
+                const now = this.context.currentTime;
+                const startFreq = 150;
+                const endFreq = 180;
+                const duration = 1.4;
+                
+                // 生成噪音模拟木质摩擦
+                const bufferSize = this.context.sampleRate * duration;
+                const buffer = this.context.createBuffer(1, bufferSize, this.context.sampleRate);
+                const data = buffer.getChannelData(0);
+                
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = (Math.random() * 2 - 1) * 0.8;
+                }
+                
+                const noise = this.context.createBufferSource();
+                noise.buffer = buffer;
+                
+                // 带通滤波器模拟木质共振
+                const filter = this.context.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(startFreq, now);
+                filter.frequency.linearRampToValueAtTime(endFreq, now + duration);
+                filter.Q.value = 2;
+                
+                // 音量包络 - 音量增加50% (0.25 * 1.5 = 0.375) * sfxVolume
+                const gain = this.context.createGain();
+                gain.gain.setValueAtTime(0.375 * this.sfxVolume, now);
+                gain.gain.linearRampToValueAtTime(0.015 * this.sfxVolume, now + duration);
+                
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.context.destination);
+                
+                noise.start(now);
+                noise.stop(now + duration);
+            },
+            
+            // 3. 竖琴抽卡音效（最终版）
+            playCardDrawHarp(onComplete) {
+                if (this.isMuted || !this.context) return 0;
+                
+                // 音符序列：C4-D4-F4-A4-C5-B4-G4-D4-C4
+                const sequence = [
+                    { note: 'C4', interval: 0.2, duration: 0.5, volume: 0.04 },  // 弱
+                    { note: 'D4', interval: 0.2, duration: 0.5, volume: 0.06 },  // 渐强
+                    { note: 'F4', interval: 0.2, duration: 0.5, volume: 0.08 },  // 强
+                    { note: 'A4', interval: 0.2, duration: 0.5, volume: 0.10 },  // 强
+                    { note: 'C5', interval: 0.2, duration: 0.5, volume: 0.12 },  // 最强
+                    { note: 'B4', interval: 0.2, duration: 0.5, volume: 0.10 },  // 强
+                    { note: 'G4', interval: 0.2, duration: 0.5, volume: 0.08 },  // 渐弱
+                    { note: 'D4', interval: 0.2, duration: 0.5, volume: 0.06 },  // 弱
+                    { note: 'C4', interval: 1.0, duration: 2.0, volume: 0.04 }   // 极弱收尾
+                ];
+                
+                let currentTime = 0;
+                
+                sequence.forEach((item, i) => {
+                    setTimeout(() => {
+                        this.playHarpNote(this.noteFreqs[item.note], item.duration, item.volume);
+                    }, currentTime * 1000);
+                    
+                    currentTime += item.interval;
+                });
+                
+                // 音乐结束时间
+                const totalDuration = sequence.slice(0, -1).reduce((sum, item) => sum + item.interval, 0) + sequence[sequence.length - 1].interval;
+                
+                if (onComplete) {
+                    setTimeout(() => {
+                        onComplete();
+                    }, totalDuration * 1000);
+                }
+                
+                return totalDuration;
+            },
+            
+            // 播放单个竖琴音符（带延音）
+            playHarpNote(freq, duration, volume) {
+                const now = this.context.currentTime;
+                const osc = this.context.createOscillator();
+                const gain = this.context.createGain();
+                
+                osc.type = 'triangle'; // 竖琴音色
+                osc.frequency.setValueAtTime(freq, now);
+                
+                // 音量包络：快速起音，持续，自然衰减
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(volume, now + 0.01); // 快速起音
+                gain.gain.linearRampToValueAtTime(volume * 0.8, now + duration * 0.5); // 中段保持
+                gain.gain.exponentialRampToValueAtTime(0.001, now + duration); // 自然衰减
+                
+                osc.connect(gain);
+                gain.connect(this.context.destination);
+                
+                osc.start(now);
+                osc.stop(now + duration);
+            },
+            
+            // === 保留的原有音效 ===
+            
+            // 生成宝藏音效（暂时保留）
+            playGenerateTreasure() {
+                this.playButtonClick(); // 使用黑轴点击音效
+            },
+            
+            // 扔进宝箱音效（暂时保留）
+            playSaveTreasure() {
+                if (this.isMuted || !this.context) return;
+                
+                const now = this.context.currentTime;
+                
+                // 掉落声
+                const osc = this.context.createOscillator();
+                const gain = this.context.createGain();
+                
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.exponentialRampToValueAtTime(200, now + 0.3);
+                
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                
+                osc.connect(gain);
+                gain.connect(this.context.destination);
+                
+                osc.start();
+                osc.stop(now + 0.3);
+            },
+            
+            // 抽取宝藏音效（暂时保留）
+            playDrawTreasure() {
+                this.playButtonClick(); // 使用黑轴点击音效
+            },
+            
+            // 删除音效（使用黑轴）
+            playDelete() {
+                this.playButtonClick();
+            }
+        };
+
+        // 数据配置
+        const EMOTIONS = ['舒爽', '明媚', '灵感涌现', '平静', '自我安抚', '烦躁', '焦虑', '负重', '愤怒'];
+        
+        const TREASURE_MAP = {
+            '舒爽': ['胜者的金币', '跃动之羽', '开封的庆典酒杯'],
+            '明媚': ['晨光金币', '金色花环', '初醒的精灵铃'],
+            '灵感涌现': ['未完成的魔法卷轴', '发光符文石', '思绪之瓶'],
+            '平静': ['静水护符', '夜色羽毛', '封存的蓝宝石'],
+            '自我安抚': ['呼吸沙漏', '镇定符文', '封印中的小瓶'],
+            '烦躁': ['裂开的金币', '打结的羽毛', '吵闹的空瓶'],
+            '焦虑': ['未封口的信件', '震颤的水晶', '倒流的沙漏'],
+            '负重': ['沉重铁戒', '负重之箱', '压低的王冠'],
+            '愤怒': ['灼热的短剑', '燃烧的符文', '破碎的王印']
+        };
+
+        // 乌鸦语言系统 - 根据情绪智能匹配评论
+        const RAVEN_LANGUAGE = {
+            version: "1.0",
+            character: {
+                name: "乌鸦",
+                role: "见证者",
+                personality: ["中立", "克制", "略带傲娇", "不说教", "不评判"],
+                tone: "低声、冷静、诗性、简短"
+            },
+            emotions: {
+                '舒爽': [
+                    "我看到了。是的，这确实不错。",
+                    "看来今天的风，站在你那一边。",
+                    "这种感觉不常来，但你抓住了。",
+                    "嗯……这算得上一枚值得收藏的瞬间。",
+                    "你现在的步伐，很轻。",
+                    "我会与你一起铭记这一刻。",
+                    "这种心情，很适合慢慢走。",
+                    "没什么非要立刻决定的。",
+                    "风很顺，希望一直这样吹下去。"
+                ],
+                '明媚': [
+                    "不张扬，却刚刚好。",
+                    "你现在的心情，像一块被阳光晒暖的石头。",
+                    "我看见你的心在微笑，虽然你没说。",
+                    "这种高兴，不需要解释。",
+                    "留着吧，它会在某个时刻派上用场。",
+                    "今天的世界，看起来不那么拥挤。",
+                    "你站在光里，而不是被它追着跑。"
+                ],
+                '灵感涌现': [
+                    "你的想法，正在逐渐显现。",
+                    "好想法。",
+                    "我听见很多翅膀拍动的声音。",
+                    "有些念头，只适合在这个时刻出现。",
+                    "记下它们，哪怕现在还没形状。"
+                ],
+                '平静': [
+                    "没有什么在拉扯你。",
+                    "你现在，很完整。",
+                    "这种状态，不需要被打扰。",
+                    "安静的时候，很多东西会自己归位。",
+                    "我会轻轻合上这一页。"
+                ],
+                '自我安抚': [
+                    "你正在把自己一点点带回来。",
+                    "我看见你在慢慢收拢自己。",
+                    "这不是退让，这是调整。",
+                    "你没有消失，只是坐下来歇了一会。",
+                    "呼吸比想法更可靠。",
+                    "继续吧，我就在旁边。"
+                ],
+                '烦躁': [
+                    "我懂，这不是大事，但很磨人。",
+                    "这股烦意，没有形状，却到处都是。",
+                    "你现在不需要解决它。",
+                    "有些情绪，只是来敲一下门。",
+                    "别急。",
+                    "记录下来就好，我会替你看着。"
+                ],
+                '焦虑': [
+                    "你正在为还没发生的事消耗自己。",
+                    "你的呼吸，比你的想法慢。",
+                    "现在这一刻，并没有你想的那么危险。",
+                    "我知道，你很想提前准备好一切。",
+                    "放在这里吧，至少现在不用一直抱着它。"
+                ],
+                '负重': [
+                    "你扛得太久了，但你没说。",
+                    "你已经走了很远。",
+                    "有些重量，本来就不是一个人拿的。",
+                    "我注意到你的肩膀，很久没放松过。",
+                    "不是你不够好，是事情太多。",
+                    "把它放进箱子里，哪怕只是一会儿。"
+                ],
+                '愤怒': [
+                    "这是清醒的信号，不是失控。",
+                    "这不是无缘无故的。",
+                    "有东西越界了。",
+                    "你的愤怒，很明确。",
+                    "不必立刻行动，但也别假装没发生。",
+                    "不要忘记，也不要失控。"
+                ]
+            },
+            // 通用评论（当无法匹配情绪时使用）
+            general: [
+                "收下了。",
+                "乌鸦记住了。",
+                "不是随便什么都会被留下。",
+                "这一件，你当时放得很急。",
+                "你以前留下的。",
+                "这里还很安静。"
+            ]
+        };
+
+        // 获取乌鸦评论的函数
+        function getRavenComment(emotion) {
+            // 如果有对应情绪的评论，从中随机选择
+            if (RAVEN_LANGUAGE.emotions[emotion] && RAVEN_LANGUAGE.emotions[emotion].length > 0) {
+                const comments = RAVEN_LANGUAGE.emotions[emotion];
+                return comments[Math.floor(Math.random() * comments.length)];
+            }
+            // 否则使用通用评论
+            return RAVEN_LANGUAGE.general[Math.floor(Math.random() * RAVEN_LANGUAGE.general.length)];
+        }
+
+        // 生成宝藏SVG图案
+        function getTreasureSVG(treasureName) {
+            const color = '#C9A961';
+            const darkColor = '#8B6F47';
+            
+            // 金币类
+            if (treasureName.includes('金币')) {
+                const isCracked = treasureName.includes('裂开');
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="35" fill="${color}" stroke="${darkColor}" stroke-width="3"/>
+                        <circle cx="50" cy="50" r="28" fill="none" stroke="${darkColor}" stroke-width="2"/>
+                        <text x="50" y="60" text-anchor="middle" font-size="32" font-weight="bold" fill="${darkColor}">¥</text>
+                        ${isCracked ? '<path d="M 30 30 L 70 70 M 70 30 L 30 70" stroke="#A64B3A" stroke-width="3"/>' : ''}
+                    </svg>
+                `;
+            }
+            
+            // 羽毛类
+            if (treasureName.includes('羽')) {
+                const isTangled = treasureName.includes('打结');
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <path d="M 50 15 Q 48 35, 46 55 Q 44 75, 42 90" 
+                              fill="none" stroke="${color}" stroke-width="4" stroke-linecap="round"/>
+                        ${!isTangled ? `
+                            <path d="M 46 30 Q 30 32, 25 35" fill="none" stroke="${color}" stroke-width="2"/>
+                            <path d="M 45 40 Q 28 42, 22 45" fill="none" stroke="${color}" stroke-width="2"/>
+                            <path d="M 44 50 Q 26 52, 20 55" fill="none" stroke="${color}" stroke-width="2"/>
+                            <path d="M 43 60 Q 24 62, 18 65" fill="none" stroke="${color}" stroke-width="2"/>
+                            <path d="M 42 70 Q 22 72, 16 75" fill="none" stroke="${color}" stroke-width="2"/>
+                            <path d="M 54 30 Q 70 32, 75 35" fill="none" stroke="${color}" stroke-width="2"/>
+                            <path d="M 55 40 Q 72 42, 78 45" fill="none" stroke="${color}" stroke-width="2"/>
+                            <path d="M 56 50 Q 74 52, 80 55" fill="none" stroke="${color}" stroke-width="2"/>
+                            <path d="M 57 60 Q 76 62, 82 65" fill="none" stroke="${color}" stroke-width="2"/>
+                            <path d="M 58 70 Q 78 72, 84 75" fill="none" stroke="${color}" stroke-width="2"/>
+                        ` : `
+                            <path d="M 46 45 Q 65 40, 55 60 Q 45 50, 50 70" fill="none" stroke="${color}" stroke-width="3"/>
+                            <path d="M 54 45 Q 35 40, 45 60 Q 55 50, 50 70" fill="none" stroke="${color}" stroke-width="3"/>
+                        `}
+                    </svg>
+                `;
+            }
+            
+            // 酒杯类
+            if (treasureName.includes('酒杯')) {
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <path d="M 30 20 L 35 60 Q 35 75, 50 75 Q 65 75, 65 60 L 70 20 Z" 
+                              fill="${color}" stroke="${color}" stroke-width="3"/>
+                        <rect x="25" y="15" width="50" height="8" fill="${color}" rx="2"/>
+                        <rect x="45" y="75" width="10" height="15" fill="${color}"/>
+                    </svg>
+                `;
+            }
+            
+            // 空瓶类
+            if (treasureName.includes('空瓶')) {
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <g transform="rotate(-10 50 50)">
+                            <path d="M 42 25 L 42 35 Q 40 40, 40 45 L 40 70 Q 40 75, 45 75 L 55 75 Q 60 75, 60 70 L 60 45 Q 60 40, 58 35 L 58 25 Z" 
+                                  fill="none" stroke="${color}" stroke-width="3"/>
+                            <rect x="44" y="18" width="12" height="7" fill="none" stroke="${color}" stroke-width="3"/>
+                            <ellipse cx="50" cy="18" rx="6" ry="2" fill="none" stroke="${color}" stroke-width="2"/>
+                            <path d="M 46 20 L 48 22 L 46 24 L 48 26" fill="none" stroke="#4A90E2" stroke-width="1.5"/>
+                            <path d="M 54 20 L 52 22 L 54 24 L 52 26" fill="none" stroke="#4A90E2" stroke-width="1.5"/>
+                            <path d="M 43 40 L 45 43 L 43 46 L 45 49 L 43 52" fill="none" stroke="#4A90E2" stroke-width="1.5" opacity="0.8"/>
+                            <path d="M 50 42 L 52 45 L 50 48 L 52 51 L 50 54" fill="none" stroke="#4A90E2" stroke-width="1.5" opacity="0.8"/>
+                            <path d="M 57 40 L 55 43 L 57 46 L 55 49 L 57 52" fill="none" stroke="#4A90E2" stroke-width="1.5" opacity="0.8"/>
+                            <path d="M 46 58 L 48 61 L 46 64" fill="none" stroke="#4A90E2" stroke-width="1.5" opacity="0.6"/>
+                            <path d="M 54 58 L 52 61 L 54 64" fill="none" stroke="#4A90E2" stroke-width="1.5" opacity="0.6"/>
+                        </g>
+                    </svg>
+                `;
+            }
+            
+            // 花环类
+            if (treasureName.includes('花环')) {
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="30" fill="none" stroke="${color}" stroke-width="4"/>
+                        <circle cx="50" cy="20" r="8" fill="${color}"/>
+                        <circle cx="80" cy="50" r="8" fill="${color}"/>
+                        <circle cx="50" cy="80" r="8" fill="${color}"/>
+                        <circle cx="20" cy="50" r="8" fill="${color}"/>
+                        <circle cx="65" cy="30" r="6" fill="${darkColor}"/>
+                        <circle cx="70" cy="70" r="6" fill="${darkColor}"/>
+                        <circle cx="30" cy="70" r="6" fill="${darkColor}"/>
+                        <circle cx="35" cy="30" r="6" fill="${darkColor}"/>
+                    </svg>
+                `;
+            }
+            
+            // 铃铛类
+            if (treasureName.includes('铃')) {
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <path d="M 50 20 L 35 60 Q 35 70, 50 70 Q 65 70, 65 60 L 50 20 Z" 
+                              fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                        <circle cx="50" cy="72" r="6" fill="${darkColor}"/>
+                        <line x1="50" y1="10" x2="50" y2="20" stroke="${darkColor}" stroke-width="3"/>
+                        <circle cx="50" cy="10" r="4" fill="${color}"/>
+                    </svg>
+                `;
+            }
+            
+            // 卷轴类
+            if (treasureName.includes('卷轴')) {
+                const isUnfinished = treasureName.includes('未完成');
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <path d="M 25 30 Q 20 50, 25 70 L 75 70 Q 80 50, 75 30 Z" 
+                              fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                        <ellipse cx="25" cy="50" rx="5" ry="22" fill="${darkColor}"/>
+                        <ellipse cx="23" cy="50" rx="3" ry="20" fill="${color}"/>
+                        <ellipse cx="75" cy="50" rx="5" ry="22" fill="${darkColor}"/>
+                        <ellipse cx="77" cy="50" rx="3" ry="20" fill="${color}"/>
+                        <line x1="35" y1="40" x2="65" y2="40" stroke="${darkColor}" stroke-width="2"/>
+                        <line x1="35" y1="50" x2="65" y2="50" stroke="${darkColor}" stroke-width="2"/>
+                        <line x1="35" y1="60" x2="${isUnfinished ? 50 : 65}" y2="60" stroke="${darkColor}" stroke-width="2"/>
+                        ${isUnfinished ? '<text x="60" y="65" font-size="18" font-weight="bold" fill="#A64B3A">?</text>' : ''}
+                    </svg>
+                `;
+            }
+            
+            // 信件类
+            if (treasureName.includes('信件')) {
+                const isUnsealed = treasureName.includes('未封口');
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        ${isUnsealed ? `
+                            <rect x="28" y="20" width="44" height="60" fill="#D4C5A9" stroke="${darkColor}" stroke-width="2" rx="3"/>
+                            <line x1="35" y1="20" x2="35" y2="80" stroke="${darkColor}" stroke-width="1" opacity="0.2"/>
+                            <line x1="43" y1="20" x2="43" y2="80" stroke="${darkColor}" stroke-width="1" opacity="0.2"/>
+                            <line x1="50" y1="20" x2="50" y2="80" stroke="${darkColor}" stroke-width="1" opacity="0.2"/>
+                            <line x1="57" y1="20" x2="57" y2="80" stroke="${darkColor}" stroke-width="1" opacity="0.2"/>
+                            <line x1="65" y1="20" x2="65" y2="80" stroke="${darkColor}" stroke-width="1" opacity="0.2"/>
+                            <line x1="38" y1="28" x2="38" y2="60" stroke="${darkColor}" stroke-width="1.5"/>
+                            <line x1="46" y1="28" x2="46" y2="60" stroke="${darkColor}" stroke-width="1.5"/>
+                            <line x1="54" y1="28" x2="54" y2="60" stroke="${darkColor}" stroke-width="1.5"/>
+                            <line x1="62" y1="28" x2="62" y2="45" stroke="${darkColor}" stroke-width="1.5"/>
+                            <text x="62" y="58" font-size="16" font-weight="bold" fill="#A64B3A">…</text>
+                            <path d="M 50 15 Q 45 17, 48 20" fill="none" stroke="#8B4513" stroke-width="2"/>
+                            <path d="M 50 15 Q 55 17, 52 20" fill="none" stroke="#8B4513" stroke-width="2"/>
+                            <circle cx="50" cy="15" r="2" fill="#8B4513"/>
+                        ` : `
+                            <rect x="28" y="25" width="44" height="50" fill="#D4C5A9" stroke="${darkColor}" stroke-width="2" rx="3"/>
+                            <line x1="35" y1="25" x2="35" y2="75" stroke="${darkColor}" stroke-width="1" opacity="0.2"/>
+                            <line x1="43" y1="25" x2="43" y2="75" stroke="${darkColor}" stroke-width="1" opacity="0.2"/>
+                            <line x1="50" y1="25" x2="50" y2="75" stroke="${darkColor}" stroke-width="1" opacity="0.2"/>
+                            <line x1="57" y1="25" x2="57" y2="75" stroke="${darkColor}" stroke-width="1" opacity="0.2"/>
+                            <line x1="65" y1="25" x2="65" y2="75" stroke="${darkColor}" stroke-width="1" opacity="0.2"/>
+                            <line x1="38" y1="33" x2="38" y2="67" stroke="${darkColor}" stroke-width="1.5"/>
+                            <line x1="46" y1="33" x2="46" y2="67" stroke="${darkColor}" stroke-width="1.5"/>
+                            <line x1="54" y1="33" x2="54" y2="67" stroke="${darkColor}" stroke-width="1.5"/>
+                            <line x1="62" y1="33" x2="62" y2="67" stroke="${darkColor}" stroke-width="1.5"/>
+                            <path d="M 35 22 Q 50 18, 65 22" fill="none" stroke="#8B4513" stroke-width="2.5"/>
+                            <path d="M 48 18 L 48 28" fill="none" stroke="#8B4513" stroke-width="2"/>
+                            <path d="M 52 18 L 52 28" fill="none" stroke="#8B4513" stroke-width="2"/>
+                            <circle cx="50" cy="50" r="10" fill="#A64B3A"/>
+                            <circle cx="50" cy="50" r="7" fill="none" stroke="${color}" stroke-width="1.5"/>
+                            <text x="50" y="55" text-anchor="middle" font-size="11" font-weight="bold" fill="${color}">封</text>
+                        `}
+                    </svg>
+                `;
+            }
+            
+            // 符文石类
+            if (treasureName.includes('符文')) {
+                const isBurning = treasureName.includes('燃烧');
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <polygon points="50,15 70,40 65,70 35,70 30,40" fill="${color}" stroke="${darkColor}" stroke-width="3"/>
+                        <text x="50" y="55" text-anchor="middle" font-size="28" font-weight="bold" fill="${darkColor}">ᚱ</text>
+                        ${isBurning ? `
+                            <path d="M 45 10 Q 40 5, 42 0" fill="none" stroke="#E74C3C" stroke-width="2"/>
+                            <path d="M 50 8 Q 48 3, 50 -2" fill="none" stroke="#E74C3C" stroke-width="2"/>
+                            <path d="M 55 10 Q 58 5, 56 0" fill="none" stroke="#E74C3C" stroke-width="2"/>
+                        ` : ''}
+                    </svg>
+                `;
+            }
+            
+            // 瓶子类（思绪之瓶、封印中的小瓶）
+            if (treasureName.includes('瓶') && !treasureName.includes('空瓶')) {
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <rect x="35" y="30" width="30" height="5" fill="${darkColor}"/>
+                        <rect x="38" y="22" width="24" height="8" fill="${color}"/>
+                        <path d="M 38 35 Q 35 40, 35 50 L 35 75 Q 35 80, 40 80 L 60 80 Q 65 80, 65 75 L 65 50 Q 65 40, 62 35 Z" 
+                              fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                        <ellipse cx="50" cy="55" rx="8" ry="12" fill="${darkColor}" opacity="0.3"/>
+                    </svg>
+                `;
+            }
+            
+            // 护符类
+            if (treasureName.includes('护符')) {
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <circle cx="50" cy="55" r="25" fill="${color}" stroke="${darkColor}" stroke-width="3"/>
+                        <path d="M 50 30 L 55 45 L 70 45 L 58 54 L 62 68 L 50 60 L 38 68 L 42 54 L 30 45 L 45 45 Z" 
+                              fill="${darkColor}"/>
+                        <path d="M 45 20 Q 45 15, 50 15 Q 55 15, 55 20" fill="none" stroke="${color}" stroke-width="3"/>
+                        <circle cx="50" cy="15" r="4" fill="${color}"/>
+                    </svg>
+                `;
+            }
+            
+            // 蓝宝石类
+            if (treasureName.includes('宝石')) {
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <polygon points="50,20 70,40 60,75 40,75 30,40" fill="#4A90E2" stroke="#2E5C8A" stroke-width="3"/>
+                        <polygon points="50,20 70,40 50,50" fill="#5BA3F5" opacity="0.7"/>
+                        <polygon points="50,20 30,40 50,50" fill="#357ABD" opacity="0.7"/>
+                        <path d="M 30 40 L 50 50 L 40 75" fill="#2E5C8A" opacity="0.5"/>
+                        <path d="M 70 40 L 50 50 L 60 75" fill="#5BA3F5" opacity="0.5"/>
+                    </svg>
+                `;
+            }
+            
+            // 沙漏类
+            if (treasureName.includes('沙漏')) {
+                const isReversed = treasureName.includes('倒流');
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <rect x="30" y="15" width="40" height="8" fill="${darkColor}" rx="2"/>
+                        <rect x="30" y="77" width="40" height="8" fill="${darkColor}" rx="2"/>
+                        <path d="M 35 23 L 50 50 L 35 77 M 65 23 L 50 50 L 65 77" 
+                              fill="none" stroke="${color}" stroke-width="3"/>
+                        ${isReversed ? 
+                            `<path d="M 35 25 L 50 45 L 65 25 Z" fill="${color}"/>` :
+                            `<path d="M 35 75 L 50 55 L 65 75 Z" fill="${color}"/>`
+                        }
+                        <circle cx="50" cy="50" r="3" fill="${darkColor}"/>
+                    </svg>
+                `;
+            }
+            
+            // 水晶类
+            if (treasureName.includes('水晶')) {
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <polygon points="50,20 65,40 60,70 40,70 35,40" fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                        <line x1="50" y1="20" x2="50" y2="70" stroke="${darkColor}" stroke-width="2"/>
+                        <line x1="35" y1="40" x2="65" y2="40" stroke="${darkColor}" stroke-width="2"/>
+                        <line x1="40" y1="70" x2="65" y2="40" stroke="${darkColor}" stroke-width="1" opacity="0.5"/>
+                        <line x1="60" y1="70" x2="35" y2="40" stroke="${darkColor}" stroke-width="1" opacity="0.5"/>
+                        <circle cx="45" cy="35" r="3" fill="white" opacity="0.6"/>
+                    </svg>
+                `;
+            }
+            
+            // 铁戒类
+            if (treasureName.includes('铁戒')) {
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="28" fill="none" stroke="${darkColor}" stroke-width="8"/>
+                        <circle cx="50" cy="50" r="20" fill="none" stroke="${color}" stroke-width="3"/>
+                        <rect x="45" y="15" width="10" height="15" fill="${darkColor}" rx="2"/>
+                        <circle cx="50" cy="22" r="6" fill="${color}"/>
+                    </svg>
+                `;
+            }
+            
+            // 箱子类
+            if (treasureName.includes('箱')) {
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <rect x="25" y="40" width="50" height="35" fill="${color}" stroke="${darkColor}" stroke-width="3"/>
+                        <path d="M 25 40 L 35 30 L 85 30 L 75 40 Z" fill="${darkColor}"/>
+                        <rect x="25" y="40" width="50" height="8" fill="${darkColor}"/>
+                        <rect x="47" y="52" width="6" height="15" fill="${darkColor}" rx="1"/>
+                        <circle cx="50" cy="62" r="3" fill="${color}"/>
+                        <line x1="30" y1="48" x2="70" y2="48" stroke="${color}" stroke-width="2"/>
+                    </svg>
+                `;
+            }
+            
+            // 王冠类
+            if (treasureName.includes('王冠') || treasureName.includes('王印')) {
+                const isBroken = treasureName.includes('破碎') || treasureName.includes('压低');
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        ${isBroken ? 
+                            '<path d="M 25 55 L 30 40 L 50 50 L 70 40 L 75 55 L 65 60 M 55 58 L 45 62 M 40 60 L 30 58" fill="' + color + '" stroke="' + darkColor + '" stroke-width="3"/>' :
+                            '<path d="M 25 55 L 30 40 L 50 50 L 70 40 L 75 55 L 65 65 L 35 65 Z" fill="' + color + '" stroke="' + darkColor + '" stroke-width="3"/>'
+                        }
+                        <circle cx="30" cy="40" r="5" fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                        <circle cx="50" cy="50" r="5" fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                        <circle cx="70" cy="40" r="5" fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                        ${isBroken ? '<path d="M 40 45 L 60 65" stroke="#A64B3A" stroke-width="3"/>' : ''}
+                    </svg>
+                `;
+            }
+            
+            // 短剑类
+            if (treasureName.includes('短剑')) {
+                return `
+                    <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <rect x="46" y="20" width="8" height="50" fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                        <polygon points="50,15 45,20 55,20" fill="${darkColor}"/>
+                        <rect x="40" y="68" width="20" height="8" fill="${darkColor}"/>
+                        <rect x="45" y="76" width="10" height="6" fill="${color}"/>
+                        <path d="M 35 40 Q 30 35, 35 30" fill="none" stroke="#E74C3C" stroke-width="2"/>
+                        <path d="M 40 45 Q 35 40, 40 35" fill="none" stroke="#E74C3C" stroke-width="2"/>
+                        <path d="M 65 40 Q 70 35, 65 30" fill="none" stroke="#E74C3C" stroke-width="2"/>
+                    </svg>
+                `;
+            }
+            
+            // 默认宝石图案
+            return `
+                <svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                    <polygon points="50,20 70,40 60,75 40,75 30,40" fill="${color}" stroke="${darkColor}" stroke-width="3"/>
+                    <polygon points="50,20 70,40 50,50" fill="${darkColor}" opacity="0.3"/>
+                    <polygon points="50,20 30,40 50,50" fill="${darkColor}" opacity="0.5"/>
+                </svg>
+            `;
+        }
+
+        // 获取魔法阵类名
+        function getCircleClassName(type) {
+            const names = {
+                1: 'circle-classic',
+                2: 'circle-rune',
+                3: 'circle-spiral',
+                6: 'circle-ancient'
+            };
+            return names[type];
+        }
+
+        // 获取魔法阵HTML
+        function getCircleHTML(type) {
+            switch(type) {
+                case 1: // 经典六芒星
+                    return `
+                        <div class="outer-ring"></div>
+                        <div class="inner-ring"></div>
+                        <div class="dots-container">
+                            <div class="dot" style="top: -4px; left: 50%; transform: translateX(-50%);"></div>
+                            <div class="dot" style="bottom: -4px; left: 50%; transform: translateX(-50%);"></div>
+                            <div class="dot" style="top: 50%; left: -4px; transform: translateY(-50%);"></div>
+                            <div class="dot" style="top: 50%; right: -4px; transform: translateY(-50%);"></div>
+                            <div class="dot" style="top: 15%; right: 15%;"></div>
+                            <div class="dot" style="bottom: 15%; left: 15%;"></div>
+                        </div>
+                    `;
+                case 2: // 符文三环
+                    return `
+                        <div class="ring ring-1"></div>
+                        <div class="ring ring-2"></div>
+                        <div class="ring ring-3"></div>
+                        <div class="rune-container">
+                            <div class="rune-symbol" style="top: -10px; left: 50%; transform: translateX(-50%);">᚛</div>
+                            <div class="rune-symbol" style="bottom: -10px; left: 50%; transform: translateX(-50%);">᚜</div>
+                            <div class="rune-symbol" style="top: 50%; left: -10px; transform: translateY(-50%);">ᚑ</div>
+                            <div class="rune-symbol" style="top: 50%; right: -10px; transform: translateY(-50%);">ᚐ</div>
+                        </div>
+                    `;
+                case 3: // 阴阳螺旋
+                    return `
+                        <div class="spiral-ring"></div>
+                        <div class="spiral-ring spiral-ring-2"></div>
+                    `;
+                case 6: // 古文封印
+                    return `
+                        <div class="ancient-ring"></div>
+                        <div class="inner-ancient"></div>
+                        <div class="ancient-container">
+                            <div class="ancient-symbol" style="top: -15px; left: 50%; transform: translateX(-50%);">卍</div>
+                            <div class="ancient-symbol" style="bottom: -15px; left: 50%; transform: translateX(-50%);">卐</div>
+                            <div class="ancient-symbol" style="top: 50%; left: -15px; transform: translateY(-50%);">☰</div>
+                            <div class="ancient-symbol" style="top: 50%; right: -15px; transform: translateY(-50%);">☷</div>
+                        </div>
+                    `;
+            }
+        }
+
+        // 创建粒子效果
+        function createParticles(containerId) {
+            const container = document.getElementById(`${containerId}-particles`);
+            if (!container) return;
+            
+            container.innerHTML = ''; // 清空已有粒子
+            
+            const particleCount = 12;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const angle = (i / particleCount) * Math.PI * 2;
+                const distance = 60 + Math.random() * 20;
+                
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                particle.style.setProperty('--tx', `${tx}px`);
+                particle.style.setProperty('--ty', `${ty}px`);
+                
+                const delay = Math.random() * 2;
+                const duration = 2 + Math.random() * 1;
+                
+                particle.style.animation = `particle-burst ${duration}s ease-out ${delay}s infinite`;
+                
+                container.appendChild(particle);
+            }
+        }
+
+        // 创建火花四射效果
+        function createSparks(event) {
+            const button = event.currentTarget;
+            const rect = button.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            const sparkCount = 20;
+            for (let i = 0; i < sparkCount; i++) {
+                const spark = document.createElement('div');
+                spark.className = 'spark';
+                
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 40 + Math.random() * 60;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                
+                spark.style.left = x + 'px';
+                spark.style.top = y + 'px';
+                spark.style.setProperty('--tx', tx + 'px');
+                spark.style.setProperty('--ty', ty + 'px');
+                spark.style.setProperty('--rotation', Math.random() * 360 + 'deg');
+                spark.style.animation = `spark-fly ${0.4 + Math.random() * 0.2}s ease-out`;
+                
+                button.appendChild(spark);
+                
+                setTimeout(() => spark.remove(), 600);
+            }
+        }
+
+        // 全局状态
+        let selectedEmotion = '';
+        let treasures = [];
+        let currentTreasure = null;
+
+        // 初始化
+        function init() {
+            loadTreasures();
+            renderEmotions();
+            updateTreasureBox();
+            updateProfileCount();
+            
+            document.getElementById('contentInput').addEventListener('input', updateGenerateButton);
+            
+            // AI服务状态更新已移除 - 开发者模式
+            
+            // 自动初始化
+            AudioSystem.init();
+            // 使用短延迟确保页面加载完成
+            setTimeout(() => {
+                AudioSystem.playBGMusic();
+            }, 100);
+        }
+
+        // 渲染情绪选择
+        function renderEmotions() {
+            const list = document.getElementById('emotionList');
+            list.innerHTML = EMOTIONS.map(emotion => 
+                `<button class="emotion-btn" onclick="selectEmotion('${emotion}')">
+                    <span class="emotion-icon ${emotion}"></span>
+                    ${emotion}
+                </button>`
+            ).join('');
+            
+            // 鼠标拖拽滚动
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+            
+            list.addEventListener('mousedown', (e) => {
+                isDown = true;
+                list.style.cursor = 'grabbing';
+                startX = e.pageX - list.offsetLeft;
+                scrollLeft = list.scrollLeft;
+            });
+            
+            list.addEventListener('mouseleave', () => {
+                isDown = false;
+                list.style.cursor = 'grab';
+            });
+            
+            list.addEventListener('mouseup', () => {
+                isDown = false;
+                list.style.cursor = 'grab';
+            });
+            
+            list.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - list.offsetLeft;
+                const walk = (x - startX) * 2;
+                list.scrollLeft = scrollLeft - walk;
+            });
+            
+            list.style.cursor = 'grab';
+        }
+
+        // 选择情绪
+        function selectEmotion(emotion) {
+            AudioSystem.playButtonClick(); // 播放点击音效
+            selectedEmotion = emotion;
+            document.querySelectorAll('.emotion-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.textContent.trim() === emotion);
+            });
+            updateGenerateButton();
+        }
+
+        // 更新生成按钮
+        function updateGenerateButton() {
+            const content = document.getElementById('contentInput').value.trim();
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = !selectedEmotion || !content;
+        }
+
+        // 生成宝藏
+        async function generateTreasure() {
+            AudioSystem.playGenerateTreasure(); // 播放生成音效
+            
+            const btn = document.getElementById('generateBtn');
+            const content = document.getElementById('contentInput').value.trim();
+            
+            if (!selectedEmotion || !content) return;
+
+            btn.classList.add('loading');
+            btn.disabled = true;
+            
+            // 根据模式显示不同的加载文字
+            const mode = aiService.getCurrentMode();
+            const loadingText = mode === 'ai' ? 'AI创作中...' : '生成中...';
+            btn.textContent = loadingText;
+
+            try {
+                // 使用AI服务生成宝藏
+                const aiResult = await aiService.generateTreasure(selectedEmotion, content);
+                
+                const treasure = {
+                    id: Date.now(),
+                    name: aiResult.treasure_name,
+                    content: content,
+                    emotion: selectedEmotion,
+                    comment: aiResult.crow_comment,
+                    timestamp: Date.now(), // 原始时间戳，用于计算记录天数
+                    time: new Date().toLocaleString('zh-CN', { 
+                        month: '2-digit', 
+                        day: '2-digit', 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    }),
+                    source: aiResult.source // 'ai' 或 'local'
+                };
+
+                btn.classList.remove('loading');
+                btn.textContent = '生成宝藏';
+                btn.disabled = true;
+
+                // 显示来源提示（仅在控制台）
+                if (aiResult.source === 'ai') {
+                    console.log('✨ AI生成的宝藏:', treasure.name);
+                } else {
+                    console.log('📚 本地库生成的宝藏:', treasure.name);
+                }
+
+                showTreasurePreview(treasure);
+                
+            } catch (error) {
+                console.error('生成宝藏失败:', error);
+                showToast('生成失败，请重试');
+                btn.classList.remove('loading');
+                btn.textContent = '生成宝藏';
+                btn.disabled = false;
+            }
+        }
+
+        // 显示宝藏预览
+        function showTreasurePreview(treasure) {
+            // 随机选择魔法阵类型（1,2,3,6）
+            const circleTypes = [1, 2, 3, 6];
+            const circleType = circleTypes[Math.floor(Math.random() * circleTypes.length)];
+            
+            const modal = document.getElementById('treasurePreviewModal');
+            modal.innerHTML = `
+                <button class="modal-close" onclick="closeTreasurePreview()">×</button>
+                <div class="preview-treasure-icon">
+                    <div class="magic-circle-container ${getCircleClassName(circleType)}">
+                        ${getCircleHTML(circleType)}
+                        <div class="particles-container" id="preview-particles"></div>
+                        ${getTreasureSVG(treasure.name)}
+                    </div>
+                </div>
+                <div class="preview-treasure-name">${treasure.name}</div>
+                <div class="preview-treasure-content">${treasure.content}</div>
+                <div class="preview-treasure-meta">
+                    <span class="preview-emotion-tag">
+                        <span class="emotion-icon ${treasure.emotion}"></span>
+                        ${treasure.emotion}
+                    </span>
+                    <span class="preview-treasure-time">${treasure.time}</span>
+                </div>
+                <div class="preview-crow-comment">"${treasure.comment}"</div>
+                <div class="preview-actions">
+                    <button class="preview-btn save" onclick="saveTreasureToBox()">扔进宝箱</button>
+                    <button class="preview-btn cancel" onclick="cancelTreasure()">取消投递</button>
+                </div>
+            `;
+            
+            window.pendingTreasure = treasure;
+            
+            // 创建粒子效果
+            setTimeout(() => createParticles('preview'), 0);
+            
+            // 为扔进宝箱按钮添加火花效果
+            setTimeout(() => {
+                const saveBtn = modal.querySelector('.preview-btn.save');
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', createSparks);
+                }
+            }, 0);
+            
+            const overlay = document.getElementById('overlay');
+            overlay.classList.add('active');
+            modal.classList.add('active');
+        }
+
+        // 保存宝藏
+        function saveTreasureToBox() {
+            if (!window.pendingTreasure) return;
+            
+            AudioSystem.playChestOpen(); // 播放宝箱打开音效（扔进宝箱）
+            
+            treasures.unshift(window.pendingTreasure);
+            saveTreasures();
+            
+            closeTreasurePreview();
+            showToast('宝藏已保存');
+            
+            document.getElementById('contentInput').value = '';
+            selectedEmotion = '';
+            document.querySelectorAll('.emotion-btn').forEach(btn => btn.classList.remove('active'));
+            
+            updateTreasureBox();
+            updateProfileCount();
+            
+            window.pendingTreasure = null;
+        }
+
+        // 取消投递
+        function cancelTreasure() {
+            closeTreasurePreview();
+            
+            document.getElementById('contentInput').value = '';
+            selectedEmotion = '';
+            document.querySelectorAll('.emotion-btn').forEach(btn => btn.classList.remove('active'));
+            
+            window.pendingTreasure = null;
+            showToast('已取消');
+        }
+
+        // 关闭预览
+        function closeTreasurePreview() {
+            const overlay = document.getElementById('overlay');
+            const modal = document.getElementById('treasurePreviewModal');
+            overlay.classList.remove('active');
+            modal.classList.remove('active');
+        }
+
+        // 更新宝箱
+        function updateTreasureBox() {
+            const content = document.getElementById('treasureBoxContent');
+            
+            const illustration = `
+                <div class="treasure-illustration">
+                    <!-- 上升光点粒子 -->
+                    <div class="particles-rising" id="treasureParticles"></div>
+                    
+                    <!-- 宝箱SVG -->
+                    <svg viewBox="0 0 240 240">
+                        <!-- 宝箱主体（不动） -->
+                        <g id="chest-body">
+                            <!-- 箱体 -->
+                            <rect x="48" y="120" width="144" height="80" rx="3" 
+                                  fill="none" stroke="#5D4E37" stroke-width="3"/>
+                            
+                            <!-- 木板条纹（垂直线条） -->
+                            <line x1="66" y1="120" x2="66" y2="200" stroke="#8b7355" stroke-width="2"/>
+                            <line x1="84" y1="120" x2="84" y2="200" stroke="#8b7355" stroke-width="2"/>
+                            <line x1="102" y1="120" x2="102" y2="200" stroke="#8b7355" stroke-width="2"/>
+                            <line x1="120" y1="120" x2="120" y2="200" stroke="#8b7355" stroke-width="2"/>
+                            <line x1="138" y1="120" x2="138" y2="200" stroke="#8b7355" stroke-width="2"/>
+                            <line x1="156" y1="120" x2="156" y2="200" stroke="#8b7355" stroke-width="2"/>
+                            <line x1="174" y1="120" x2="174" y2="200" stroke="#8b7355" stroke-width="2"/>
+                            
+                            <!-- 金属箍（上） -->
+                            <rect x="43" y="128" width="156" height="10" rx="2" 
+                                  fill="none" stroke="#C9A961" stroke-width="3"/>
+                            <!-- 铆钉 -->
+                            <circle cx="53" cy="133" r="3" fill="#C9A961"/>
+                            <circle cx="75" cy="133" r="3" fill="#C9A961"/>
+                            <circle cx="97" cy="133" r="3" fill="#C9A961"/>
+                            <circle cx="120" cy="133" r="3" fill="#C9A961"/>
+                            <circle cx="143" cy="133" r="3" fill="#C9A961"/>
+                            <circle cx="165" cy="133" r="3" fill="#C9A961"/>
+                            <circle cx="187" cy="133" r="3" fill="#C9A961"/>
+                            
+                            <!-- 金属箍（中） -->
+                            <rect x="43" y="155" width="156" height="10" rx="2" 
+                                  fill="none" stroke="#C9A961" stroke-width="3"/>
+                            <!-- 铆钉 -->
+                            <circle cx="53" cy="160" r="3" fill="#C9A961"/>
+                            <circle cx="75" cy="160" r="3" fill="#C9A961"/>
+                            <circle cx="97" cy="160" r="3" fill="#C9A961"/>
+                            <circle cx="120" cy="160" r="3" fill="#C9A961"/>
+                            <circle cx="143" cy="160" r="3" fill="#C9A961"/>
+                            <circle cx="165" cy="160" r="3" fill="#C9A961"/>
+                            <circle cx="187" cy="160" r="3" fill="#C9A961"/>
+                            
+                            <!-- 金属箍（下） -->
+                            <rect x="43" y="182" width="156" height="10" rx="2" 
+                                  fill="none" stroke="#C9A961" stroke-width="3"/>
+                            <!-- 铆钉 -->
+                            <circle cx="53" cy="187" r="3" fill="#C9A961"/>
+                            <circle cx="75" cy="187" r="3" fill="#C9A961"/>
+                            <circle cx="97" cy="187" r="3" fill="#C9A961"/>
+                            <circle cx="120" cy="187" r="3" fill="#C9A961"/>
+                            <circle cx="143" cy="187" r="3" fill="#C9A961"/>
+                            <circle cx="165" cy="187" r="3" fill="#C9A961"/>
+                            <circle cx="187" cy="187" r="3" fill="#C9A961"/>
+                            
+                            <!-- 锁扣 -->
+                            <ellipse cx="120" cy="150" rx="12" ry="15" 
+                                     fill="none" stroke="#C9A961" stroke-width="3"/>
+                            <rect x="118" y="150" width="4" height="18" rx="1" 
+                                  fill="none" stroke="#C9A961" stroke-width="2"/>
+                            <circle cx="120" cy="155" r="4" fill="#C9A961"/>
+                        </g>
+
+                        <!-- 盖子（动画） -->
+                        <g class="chest-lid">
+                            <!-- 圆弧顶盖 -->
+                            <path d="M 48 120 Q 48 65 120 60 Q 192 65 192 120" 
+                                  fill="none" stroke="#5D4E37" stroke-width="3"/>
+                            <!-- 浅棕色内层弧线 -->
+                            <path d="M 50 120 L 50 123 Q 50 70 120 65 Q 190 70 190 123 L 190 120" 
+                                  fill="none" stroke="#5D4E37" stroke-width="2"/>
+                            
+                            <!-- 盖子底部封口线 -->
+                            <line x1="48" y1="120" x2="192" y2="120" stroke="#5D4E37" stroke-width="3"/>
+                            
+                            <!-- 顶盖木板条纹 -->
+                            <path d="M 66 122 Q 66 73 120 68" fill="none" stroke="#8b7355" stroke-width="2"/>
+                            <path d="M 84 123 Q 84 71 120 66" fill="none" stroke="#8b7355" stroke-width="2"/>
+                            <path d="M 102 124 Q 102 70 120 65" fill="none" stroke="#8b7355" stroke-width="2"/>
+                            <path d="M 138 124 Q 138 70 120 65" fill="none" stroke="#8b7355" stroke-width="2"/>
+                            <path d="M 156 123 Q 156 71 120 66" fill="none" stroke="#8b7355" stroke-width="2"/>
+                            <path d="M 174 122 Q 174 73 120 68" fill="none" stroke="#8b7355" stroke-width="2"/>
+                            
+                            <!-- 金属边框（顶盖） -->
+                            <path d="M 48 120 Q 48 63 120 58 Q 192 63 192 120" 
+                                  fill="none" stroke="#C9A961" stroke-width="3"/>
+                            
+                            <!-- 宝石装饰带 -->
+                            <rect x="54" y="105" width="132" height="12" rx="2" 
+                                  fill="none" stroke="#C9A961" stroke-width="2"/>
+                            <!-- 宝石 -->
+                            <circle cx="70" cy="111" r="3" fill="none" stroke="#8b7355" stroke-width="1.5"/>
+                            <circle cx="87" cy="111" r="3" fill="none" stroke="#8b7355" stroke-width="1.5"/>
+                            <circle cx="104" cy="111" r="3" fill="none" stroke="#8b7355" stroke-width="1.5"/>
+                            <circle cx="120" cy="111" r="3" fill="none" stroke="#8b7355" stroke-width="1.5"/>
+                            <circle cx="136" cy="111" r="3" fill="none" stroke="#8b7355" stroke-width="1.5"/>
+                            <circle cx="153" cy="111" r="3" fill="none" stroke="#8b7355" stroke-width="1.5"/>
+                            <circle cx="170" cy="111" r="3" fill="none" stroke="#8b7355" stroke-width="1.5"/>
+                            
+                            <!-- 顶部金属箍 -->
+                            <path d="M 48 90 Q 48 63 120 58 Q 192 63 192 90" 
+                                  fill="none" stroke="#C9A961" stroke-width="3"/>
+                            <!-- 铆钉 -->
+                            <circle cx="55" cy="90" r="3" fill="#C9A961"/>
+                            <circle cx="77" cy="87" r="3" fill="#C9A961"/>
+                            <circle cx="99" cy="85" r="3" fill="#C9A961"/>
+                            <circle cx="120" cy="84" r="3" fill="#C9A961"/>
+                            <circle cx="141" cy="85" r="3" fill="#C9A961"/>
+                            <circle cx="163" cy="87" r="3" fill="#C9A961"/>
+                            <circle cx="185" cy="90" r="3" fill="#C9A961"/>
+                            
+                            <!-- 顶部装饰 -->
+                            <path d="M 115 72 L 120 64 L 125 72" fill="none" stroke="#C9A961" stroke-width="2"/>
+                            <circle cx="120" cy="76" r="3" fill="none" stroke="#C9A961" stroke-width="1.5"/>
+                        </g>
+                    </svg>
+                </div>
+            `;
+            
+            if (treasures.length === 0) {
+                content.innerHTML = `
+                    <div class="treasure-box-frame">
+                        ${illustration}
+                    </div>
+                    <div class="empty-state">这里还很安静。</div>
+                    <button class="primary-button" onclick="showPage('record')">开始记录</button>
+                    <div class="treasure-count">宝藏总数：0</div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="treasure-box-frame">
+                        ${illustration}
+                    </div>
+                    <button class="primary-button" id="drawBtn" onclick="drawTreasure()">随机抽取宝藏</button>
+                    <div class="treasure-count">宝藏总数：${treasures.length}</div>
+                `;
+            }
+            
+            // 生成粒子效果
+            setTimeout(() => {
+                initTreasureParticles();
+            }, 100);
+        }
+
+        // 生成宝箱上升光点粒子
+        function initTreasureParticles() {
+            const container = document.getElementById('treasureParticles');
+            if (!container) return;
+            
+            // 清空现有粒子
+            container.innerHTML = '';
+            
+            // 左侧粒子（较少）- 总共15个
+            // 圆形粒子 - 金色 (7个) - 左侧
+            for (let i = 0; i < 7; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-rising particle-circle particle-gold';
+                particle.style.left = `${10 + Math.random() * 25}%`; // 10%-35%
+                particle.style.bottom = `${25 + Math.random() * 15}%`; // 25%-40%
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                particle.style.animationDuration = `${3 + Math.random() * 2}s`;
+                container.appendChild(particle);
+            }
+            
+            // 圆形粒子 - 深棕色 (4个) - 左侧
+            for (let i = 0; i < 4; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-rising particle-circle particle-brown';
+                particle.style.left = `${10 + Math.random() * 25}%`; // 10%-35%
+                particle.style.bottom = `${25 + Math.random() * 15}%`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                particle.style.animationDuration = `${3.5 + Math.random() * 2}s`;
+                container.appendChild(particle);
+            }
+            
+            // 四角星粒子 (2个) - 左侧
+            for (let i = 0; i < 2; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-rising particle-star';
+                particle.style.left = `${12 + Math.random() * 20}%`; // 12%-32%
+                particle.style.bottom = `${28 + Math.random() * 12}%`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                particle.style.animationDuration = `${3 + Math.random() * 2.5}s`;
+                container.appendChild(particle);
+            }
+            
+            // 符文粒子 (2个) - 左侧
+            const runesLeft = ['ᚱ', 'ᚹ'];
+            for (let i = 0; i < 2; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-rising particle-rune';
+                particle.style.left = `${15 + Math.random() * 18}%`; // 15%-33%
+                particle.style.bottom = `${26 + Math.random() * 14}%`;
+                particle.textContent = runesLeft[i];
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                particle.style.animationDuration = `${4 + Math.random() * 2}s`;
+                container.appendChild(particle);
+            }
+            
+            // 箱盖底部中间粒子 - 总共10个（新增）
+            // 圆形粒子 - 金色 (4个) - 中间顶部
+            for (let i = 0; i < 4; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-rising particle-circle particle-gold';
+                particle.style.left = `${43 + Math.random() * 14}%`; // 43%-57%（中间位置）
+                particle.style.bottom = `${45 + Math.random() * 10}%`; // 45%-55%（箱盖底部）
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                particle.style.animationDuration = `${3 + Math.random() * 2}s`;
+                container.appendChild(particle);
+            }
+            
+            // 圆形粒子 - 深棕色 (3个) - 中间顶部
+            for (let i = 0; i < 3; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-rising particle-circle particle-brown';
+                particle.style.left = `${43 + Math.random() * 14}%`;
+                particle.style.bottom = `${45 + Math.random() * 10}%`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                particle.style.animationDuration = `${3.5 + Math.random() * 2}s`;
+                container.appendChild(particle);
+            }
+            
+            // 四角星粒子 (2个) - 中间顶部
+            for (let i = 0; i < 2; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-rising particle-star';
+                particle.style.left = `${45 + Math.random() * 10}%`;
+                particle.style.bottom = `${47 + Math.random() * 8}%`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                particle.style.animationDuration = `${3 + Math.random() * 2.5}s`;
+                container.appendChild(particle);
+            }
+            
+            // 符文粒子 (1个) - 中间顶部
+            const particle = document.createElement('div');
+            particle.className = 'particle-rising particle-rune';
+            particle.style.left = `${47 + Math.random() * 6}%`;
+            particle.style.bottom = `${48 + Math.random() * 7}%`;
+            particle.textContent = 'ᛏ';
+            particle.style.animationDelay = `${Math.random() * 5}s`;
+            particle.style.animationDuration = `${4 + Math.random() * 2}s`;
+            container.appendChild(particle);
+            
+            // 右侧粒子（较多，从箱盖散出）- 总共33个
+            // 圆形粒子 - 金色 (15个) - 右侧，密集
+            for (let i = 0; i < 15; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-rising particle-circle particle-gold';
+                // 集中在右侧箱盖位置：65%-90%
+                particle.style.left = `${65 + Math.random() * 25}%`;
+                // 从箱盖高度开始：30%-45%
+                particle.style.bottom = `${30 + Math.random() * 15}%`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                particle.style.animationDuration = `${3 + Math.random() * 2}s`;
+                container.appendChild(particle);
+            }
+            
+            // 圆形粒子 - 深棕色 (10个) - 右侧
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-rising particle-circle particle-brown';
+                particle.style.left = `${65 + Math.random() * 25}%`;
+                particle.style.bottom = `${30 + Math.random() * 15}%`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                particle.style.animationDuration = `${3.5 + Math.random() * 2}s`;
+                container.appendChild(particle);
+            }
+            
+            // 四角星粒子 (8个) - 右侧，从箱盖散出
+            for (let i = 0; i < 8; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-rising particle-star';
+                particle.style.left = `${68 + Math.random() * 22}%`;
+                particle.style.bottom = `${32 + Math.random() * 13}%`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                particle.style.animationDuration = `${3 + Math.random() * 2.5}s`;
+                container.appendChild(particle);
+            }
+            
+            // 符文粒子 (6个) - 右侧
+            const runesRight = ['ᛖ', 'ᚾ', 'ᛏ', 'ᚱ', 'ᛖ', 'ᚨ'];
+            for (let i = 0; i < 6; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle-rising particle-rune';
+                particle.style.left = `${67 + Math.random() * 20}%`;
+                particle.style.bottom = `${31 + Math.random() * 14}%`;
+                particle.textContent = runesRight[i];
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                particle.style.animationDuration = `${4 + Math.random() * 2}s`;
+                container.appendChild(particle);
+            }
+        }
+
+        // 抽取宝藏
+        async function drawTreasure() {
+            if (treasures.length === 0) {
+                showToast('宝箱是空的');
+                return;
+            }
+
+            // 1. 点击按钮音效（黑轴）
+            AudioSystem.playButtonClick();
+            
+            showPage('draw');
+            
+            // 2. 播放宝箱打开音效
+            AudioSystem.playChestOpen();
+            
+            // 3. 等待1.5秒后显示宝藏
+            await sleep(1500);
+            
+            const randomIndex = Math.floor(Math.random() * treasures.length);
+            currentTreasure = treasures[randomIndex];
+            showTreasureCard(currentTreasure);
+        }
+
+        // 显示宝藏卡
+        function showTreasureCard(treasure) {
+            // 随机选择魔法阵类型（1,2,3,6）
+            const circleTypes = [1, 2, 3, 6];
+            const circleType = circleTypes[Math.floor(Math.random() * circleTypes.length)];
+            
+            const modal = document.getElementById('treasureCardModal');
+            modal.innerHTML = `
+                <button class="modal-close-btn" onclick="closeModal()">×</button>
+                <div class="treasure-card-icon">
+                    <div class="magic-circle-container ${getCircleClassName(circleType)}">
+                        ${getCircleHTML(circleType)}
+                        <div class="particles-container" id="card-particles"></div>
+                        ${getTreasureSVG(treasure.name)}
+                    </div>
+                </div>
+                <div class="treasure-card-name">${treasure.name}</div>
+                <div class="treasure-card-content">${treasure.content}</div>
+                <div class="preview-treasure-meta">
+                    <span class="preview-emotion-tag">
+                        <span class="emotion-icon ${treasure.emotion}"></span>
+                        ${treasure.emotion}
+                    </span>
+                    <span class="preview-treasure-time">${treasure.time}</span>
+                </div>
+                <div class="preview-crow-comment">"${treasure.comment}"</div>
+                <button class="delete-btn" onclick="confirmDelete(${treasure.id})">从宝箱移除</button>
+            `;
+            
+            // 创建粒子效果
+            setTimeout(() => createParticles('card'), 0);
+            
+            document.getElementById('overlay').classList.add('active');
+            modal.classList.add('active');
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            const overlay = document.getElementById('overlay');
+            const treasureCardModal = document.getElementById('treasureCardModal');
+            const treasurePreviewModal = document.getElementById('treasurePreviewModal');
+            
+            // 如果是从抽取页面关闭宝藏卡，立即返回宝箱页面
+            const isDrawPage = document.getElementById('drawPage').classList.contains('active');
+            if (isDrawPage && treasureCardModal.classList.contains('active')) {
+                // 立即跳转到宝箱页面
+                showPage('treasureBox');
+            }
+            
+            // 关闭弹窗
+            overlay.classList.remove('active');
+            treasureCardModal.classList.remove('active');
+            treasurePreviewModal.classList.remove('active');
+        }
+
+        // 确认删除
+        function confirmDelete(id) {
+            showConfirm('移除宝藏', '确定要将这个宝藏移除吗？', () => {
+                deleteTreasure(id);
+            });
+        }
+
+        // 删除宝藏
+        function deleteTreasure(id) {
+            AudioSystem.playDelete(); // 播放删除音效
+            
+            treasures = treasures.filter(t => t.id !== id);
+            saveTreasures();
+            
+            // 先关闭所有弹窗
+            const overlay = document.getElementById('overlay');
+            const treasureCardModal = document.getElementById('treasureCardModal');
+            const confirmDialog = document.getElementById('confirmDialog');
+            
+            overlay.classList.remove('active');
+            treasureCardModal.classList.remove('active');
+            confirmDialog.classList.remove('active');
+            
+            // 延迟后返回宝箱页面并显示提示
+            setTimeout(() => {
+                showPage('treasureBox');
+                showToast('已移除');
+                updateTreasureBox();
+                updateProfileCount();
+            }, 200);
+        }
+
+        // 确认清空
+        function confirmClearAll() {
+            if (treasures.length === 0) {
+                showToast('宝箱已经是空的了');
+                return;
+            }
+            showConfirm('清空宝藏', '此操作无法撤销。\n请谨慎操作。', () => {
+                treasures = [];
+                saveTreasures();
+                showToast('已清空');
+                updateTreasureBox();
+                updateProfileCount();
+            }, true);
+        }
+
+        // 切换音乐
+        function toggleMusic() {
+            AudioSystem.playButtonClick();
+            const isMuted = AudioSystem.toggleMute();
+            const iconBtn = document.getElementById('musicIconBtn');
+            
+            if (isMuted) {
+                iconBtn.classList.add('muted');
+                showToast('音乐已关闭');
+            } else {
+                iconBtn.classList.remove('muted');
+                showToast('音乐已开启');
+            }
+        }
+
+        // 切换交互音效
+        let sfxMuted = false;
+        function toggleSFX() {
+            AudioSystem.playButtonClick();
+            sfxMuted = !sfxMuted;
+            const iconBtn = document.getElementById('sfxIconBtn');
+            
+            if (sfxMuted) {
+                iconBtn.classList.add('muted');
+                AudioSystem.sfxVolume = 0;
+                showToast('音效已关闭');
+            } else {
+                iconBtn.classList.remove('muted');
+                const slider = document.getElementById('sfxVolumeSlider');
+                AudioSystem.sfxVolume = slider.value / 100;
+                showToast('音效已开启');
+            }
+        }
+
+        // 更新音量
+        function updateVolume(value) {
+            const volume = value / 100;
+            AudioSystem.setVolume(volume);
+            document.getElementById('volumeValue').textContent = value + '%';
+            
+            // 自动取消静音
+            if (value > 0) {
+                const iconBtn = document.getElementById('musicIconBtn');
+                iconBtn.classList.remove('muted');
+            }
+        }
+
+        // 更新交互音效音量
+        function updateSFXVolume(value) {
+            if (!sfxMuted) {
+                AudioSystem.sfxVolume = value / 100;
+            }
+            document.getElementById('sfxVolumeValue').textContent = value + '%';
+            
+            // 自动取消静音
+            if (value > 0) {
+                const iconBtn = document.getElementById('sfxIconBtn');
+                iconBtn.classList.remove('muted');
+                sfxMuted = false;
+            }
+        }
+
+        // 显示关于
+        function showAbout() {
+            showConfirm('关于', "乌鸦的宝藏 v1.2 (开发者版)\n\n一个记录与重拾内心宝藏的工具。\n内置AI增强功能。", null, false, '知道了');
+        }
+
+        // ==================== API Key对话框相关函数已移除 - 开发者模式 ====================
+
+        // 更新统计
+        function updateProfileCount() {
+            // 更新宝藏总数
+            document.getElementById('profileTreasureCount').textContent = treasures.length;
+            
+            // 计算记录天数
+            const recordDays = calculateRecordDays();
+            document.getElementById('profileRecordDays').textContent = recordDays;
+        }
+        
+        // 计算记录天数（从第一次记录开始到现在的总天数）
+        function calculateRecordDays() {
+            if (treasures.length === 0) return 0;
+            
+            // 找到最早的宝藏时间戳
+            let earliestTimestamp = treasures[0].timestamp;
+            
+            treasures.forEach(treasure => {
+                if (treasure.timestamp && treasure.timestamp < earliestTimestamp) {
+                    earliestTimestamp = treasure.timestamp;
+                }
+            });
+            
+            // 如果没有找到有效的时间戳，返回0
+            if (!earliestTimestamp) return 0;
+            
+            // 计算从最早记录日期到今天的天数差
+            const firstDate = new Date(earliestTimestamp);
+            const today = new Date();
+            
+            // 将时间设置为当天的开始（0时0分0秒），以便准确计算天数差
+            firstDate.setHours(0, 0, 0, 0);
+            today.setHours(0, 0, 0, 0);
+            
+            // 计算天数差（毫秒差 / 每天的毫秒数）
+            const daysDiff = Math.floor((today - firstDate) / (1000 * 60 * 60 * 24));
+            
+            // 返回天数+1（因为第一天也算一天）
+            return daysDiff + 1;
+        }
+
+        // 页面切换
+        function showPage(pageName) {
+            // 播放点击音效（除了draw页面，因为draw页面在drawTreasure中已经播放了）
+            if (pageName !== 'draw') {
+                AudioSystem.playButtonClick();
+            }
+            
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
+            
+            const pageMap = {
+                'record': ['recordPage', 0],
+                'treasureBox': ['treasureBoxPage', 1],
+                'draw': ['drawPage', -1],
+                'profile': ['profilePage', 2]
+            };
+            
+            const [pageId, tabIndex] = pageMap[pageName];
+            document.getElementById(pageId).classList.add('active');
+            
+            if (tabIndex >= 0) {
+                document.querySelectorAll('.tab-item')[tabIndex].classList.add('active');
+            }
+        }
+
+        // 确认对话框
+        function showConfirm(title, message, onConfirm, isDanger = false, confirmText = '确定') {
+            const dialog = document.getElementById('confirmDialog');
+            const cancelBtn = onConfirm ? `<button class="confirm-btn cancel" onclick="closeConfirm()">取消</button>` : '';
+            const confirmClass = isDanger ? 'danger' : 'confirm';
+            
+            dialog.innerHTML = `
+                <div class="confirm-title">${title}</div>
+                <div class="confirm-message">${message}</div>
+                <div class="confirm-buttons">
+                    ${cancelBtn}
+                    <button class="confirm-btn ${confirmClass}" onclick="handleConfirm()">${confirmText}</button>
+                </div>
+            `;
+            
+            dialog.classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+            
+            window.currentConfirmAction = onConfirm;
+        }
+
+        function handleConfirm() {
+            if (window.currentConfirmAction) {
+                window.currentConfirmAction();
+            }
+            closeConfirm();
+        }
+
+        function closeConfirm() {
+            document.getElementById('confirmDialog').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+            window.currentConfirmAction = null;
+        }
+
+        // Toast提示
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        // 本地存储
+        function saveTreasures() {
+            localStorage.setItem('ravens_treasures', JSON.stringify(treasures));
+        }
+
+        function loadTreasures() {
+            const data = localStorage.getItem('ravens_treasures');
+            treasures = data ? JSON.parse(data) : [];
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        document.getElementById('generateBtn').addEventListener('click', generateTreasure);
+        
+        // 为生成按钮添加火花效果
+        document.getElementById('generateBtn').addEventListener('click', createSparks);
+        
+        // 为抽取按钮添加火花效果（使用安全检查）
+        const drawBtn = document.getElementById('drawBtn');
+        if (drawBtn) {
+            drawBtn.addEventListener('click', createSparks);
+        }
+
+        init();
+    </script>
+</body>
+</html>

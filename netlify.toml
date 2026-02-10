@@ -1,0 +1,10 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# （可选）给 Function 一个更短的路径，例如 /api/treasure
+[[redirects]]
+  from = "/api/treasure"
+  to = "/.netlify/functions/treasure"
+  status = 200
+  force = true
