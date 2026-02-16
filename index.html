@@ -4370,7 +4370,7 @@
             if (name.includes('水晶')) return 12;
             if (name.includes('箱')) return 14;
             if (name.includes('王冠') || name.includes('王印')) return 15;
-            return 1; // 默认金币
+            return 12; // 默认水晶
         }
 
         // 显示宝藏卡
@@ -4788,7 +4788,7 @@
             
             // 从magic-circle-container的data-icon-type属性提取图标类型
             const circleContainer = element.querySelector('.magic-circle-container');
-            let iconType = 1; // 默认金币
+            let iconType = 12; // 默认水晶
             
             if (circleContainer && circleContainer.dataset.iconType) {
                 iconType = parseInt(circleContainer.dataset.iconType);
@@ -4890,9 +4890,9 @@
             
             let y = 40; // 顶部边距
             
-            // 1. 图案+魔法环
-            const circleSize = 70; // 使用新的尺寸
-            y += circleSize + 24; // 图案高度 + 24px间距
+            // 1. 图案+魔法环 (70px + 40px间距)
+            const circleSize = 70;
+            y += circleSize + 40; // 更新为40px间距
             
             // 2. 宝藏名称
             y += 35;
@@ -4937,7 +4937,7 @@
             const iconSize = 40;    // 从50缩小到40
             drawMagicCircle(ctx, centerX, y + circleSize/2, circleSize, data.circleType);
             drawTreasureIcon(ctx, centerX, y + circleSize/2, iconSize, data.iconType);
-            y += circleSize + 24; // 图案组合后+24px固定间距（从8px增加到24px）
+            y += circleSize + 40; // 图案组合后+40px固定间距（24px增加到40px，再远离16px）
             
             // 2. 绘制宝藏名称（使用与宝藏卡一致的字体样式）
             ctx.fillStyle = '#3D2F2F';
