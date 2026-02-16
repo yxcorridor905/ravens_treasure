@@ -4694,9 +4694,16 @@
                 try {
                     console.log('开始生成明信片...', version, treasureData);
                     
-                    // 根据版本设置尺寸
                     const width = 300;
-                    const height = version === 'full' ? 550 : 280;
+                    let height;
+                    
+                    if (version === 'full') {
+                        // 完整版：先计算所需高度
+                        height = calculateFullPostcardHeight(treasureData, width);
+                    } else {
+                        // 简约版：固定高度
+                        height = 280;
+                    }
                     
                     // 创建Canvas
                     const canvas = document.createElement('canvas');
@@ -4737,15 +4744,62 @@
             });
         }
         
+        // 计算完整版明信片所需高度
+        function calculateFullPostcardHeight(data, width) {
+            // 创建临时canvas用于测量
+            const tempCanvas = document.createElement('canvas');
+            const ctx = tempCanvas.getContext('2d');
+            
+            let y = 40; // 顶部边距
+            
+            // 1. 图案+魔法环
+            const circleSize = 100;
+            y += circleSize + 8; // 图案高度 + 8px间距
+            
+            // 2. 宝藏名称
+            y += 35;
+            
+            // 3. 分割线
+            y += 25;
+            
+            // 4. 宝藏内容
+            if (data.content) {
+                ctx.font = '15px "Noto Serif SC", serif';
+                const lines = wrapText(ctx, data.content, width - 60);
+                y += lines.length * 27 + 10;
+                y += 25; // 分割线
+            }
+            
+            // 5. 情绪和时间
+            if (data.emotion || data.time) {
+                y += 30;
+                y += 25; // 分割线
+            }
+            
+            // 6. 乌鸦评论
+            if (data.crowComment) {
+                ctx.font = 'italic 13px "Noto Serif SC", serif';
+                const commentLines = wrapText(ctx, data.crowComment, width - 60);
+                y += commentLines.length * 22;
+                y += 36; // 底部固定36px边距
+            } else {
+                y += 36; // 如果没有评论,也保持底部边距
+            }
+            
+            return Math.max(y, 280); // 最小高度280px
+        }
+        
         // 绘制完整版明信片
         function drawFullPostcard(ctx, width, height, data) {
             const centerX = width / 2;
             let y = 40;
             
-            // 1. 绘制魔法圈和宝藏图标
-            drawMagicCircle(ctx, centerX, y + 70, 140, data.circleType);
-            drawTreasureIconSimple(ctx, centerX, y + 70, 70);
-            y += 160;
+            // 1. 绘制魔法圈和宝藏图标（缩小尺寸）
+            const circleSize = 100; // 从140缩小到100
+            const iconSize = 50;    // 从70缩小到50
+            drawMagicCircle(ctx, centerX, y + circleSize/2, circleSize, data.circleType);
+            drawTreasureIconSimple(ctx, centerX, y + circleSize/2, iconSize);
+            y += circleSize + 8; // 图案组合后+8px固定间距
             
             // 2. 绘制宝藏名称
             ctx.fillStyle = '#3D2F2F';
@@ -4796,7 +4850,11 @@
                     ctx.fillText(line, centerX, y);
                     y += 22;
                 });
+                y += 36; // 乌鸦语录下方固定36px边距
             }
+            
+            // 返回实际内容高度
+            return y;
         }
         
         // 绘制简约版明信片
@@ -4804,9 +4862,11 @@
             const centerX = width / 2;
             const centerY = height / 2;
             
-            // 1. 绘制魔法圈和宝藏图标
-            drawMagicCircle(ctx, centerX, centerY - 40, 120, data.circleType);
-            drawTreasureIconSimple(ctx, centerX, centerY - 40, 60);
+            // 1. 绘制魔法圈和宝藏图标（缩小尺寸）
+            const circleSize = 90;  // 从120缩小到90
+            const iconSize = 45;     // 从60缩小到45
+            drawMagicCircle(ctx, centerX, centerY - 40, circleSize, data.circleType);
+            drawTreasureIconSimple(ctx, centerX, centerY - 40, iconSize);
             
             // 2. 分割线（图案和文字之间）
             const dividerY = centerY + 30;
