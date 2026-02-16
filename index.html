@@ -1119,6 +1119,29 @@
             to { opacity: 1; }
         }
 
+        /* 分享面板遮罩层 */
+        .share-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 650;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @media (min-width: 768px) {
+            .share-overlay {
+                border-radius: 32px;
+            }
+        }
+
+        .share-overlay.active {
+            display: block;
+        }
+
         /* 宝藏预览弹窗 */
         .treasure-preview-modal {
             display: none;
@@ -1137,6 +1160,7 @@
             z-index: 600;
             animation: scaleIn 0.4s ease;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            position: relative;
         }
 
         @media (min-width: 768px) {
@@ -1168,7 +1192,7 @@
             height: 32px;
             background: transparent;
             border: none;
-            color: #3D2F2F;
+            color: #8b7355;
             font-size: 24px;
             cursor: pointer;
             display: flex;
@@ -1179,7 +1203,7 @@
         }
 
         .modal-close:active {
-            color: #8b7355;
+            color: #5a4a3a;
         }
 
         .preview-treasure-icon {
@@ -1498,6 +1522,7 @@
             display: flex;
             flex-direction: column;
             gap: 0;
+            margin-bottom: 16px;
         }
 
         .preview-btn {
@@ -1512,22 +1537,6 @@
             letter-spacing: 0.5px;
             position: relative;
             overflow: hidden;
-        }
-
-        .preview-btn.cancel {
-            background: transparent;
-            color: #8b7355;
-            border: none;
-            height: 44px;
-            font-size: 15px;
-            margin-top: 4px;
-            font-weight: 500;
-        }
-
-        .preview-btn.cancel:active {
-            background: transparent;
-            color: #5a4a3a;
-            transform: scale(0.96);
         }
 
         .preview-btn.save {
@@ -1629,16 +1638,216 @@
             border-radius: 8px;
         }
 
-        .delete-btn {
+        /* 宝藏卡底部操作图标栏 */
+        .treasure-card-actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 32px;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(61, 47, 47, 0.1);
+        }
+
+        /* 图标按钮通用样式 */
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .icon-btn:active {
+            transform: scale(0.9);
+        }
+
+        .icon-btn svg {
+            width: 28px;
+            height: 28px;
+            stroke-width: 1.8;
+            transition: all 0.3s ease;
+        }
+
+        /* 抽取界面的更小图标 */
+        .treasure-card-actions:not(.preview-icons) .icon-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .treasure-card-actions:not(.preview-icons) {
+            gap: 24px;
+        }
+
+        /* 分享图标 */
+        .icon-btn.share-icon svg {
+            stroke: #8b7355;
+        }
+
+        .icon-btn.share-icon:active svg {
+            stroke: #5a4a3a;
+        }
+
+        /* 下载图标 */
+        .icon-btn.download-icon svg {
+            stroke: #8b7355;
+        }
+
+        .icon-btn.download-icon:active svg {
+            stroke: #5a4a3a;
+        }
+
+        /* 删除图标 */
+        .icon-btn.delete-icon svg {
+            stroke: #A64B3A;
+        }
+
+        .icon-btn.delete-icon:active svg {
+            stroke: #8B3A2A;
+        }
+
+        /* 取消图标 */
+        .icon-btn.cancel-icon svg {
+            stroke: #A64B3A;
+        }
+
+        .icon-btn.cancel-icon:active svg {
+            stroke: #8B3A2A;
+        }
+
+        /* 预览界面的关闭按钮优化 */
+        .preview-close-btn {
+            width: 36px;
+            height: 36px;
+            background: rgba(166, 75, 58, 0.08);
+            border-radius: 18px;
+            font-size: 22px;
+            color: #A64B3A;
+            transition: all 0.2s ease;
+        }
+
+        .preview-close-btn:active {
+            background: rgba(166, 75, 58, 0.15);
+            color: #8B3A2A;
+            transform: scale(0.92);
+        }
+
+        /* 分享面板 */
+        .share-panel {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85%;
+            max-width: 300px;
+            background: #E8E4D9;
+            border-radius: 16px;
+            padding: 28px 20px 24px;
+            z-index: 700;
+            animation: scaleIn 0.3s ease;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        @media (min-width: 768px) {
+            .share-panel {
+                max-width: 280px;
+            }
+        }
+
+        .share-panel.active {
+            display: block;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .share-panel-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #3D2F2F;
+            letter-spacing: 2px;
+        }
+
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 12px 6px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            background: transparent;
+        }
+
+        .share-option:active {
+            background: rgba(139, 115, 85, 0.08);
+            transform: scale(0.95);
+        }
+
+        .share-option-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .share-option-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: #8b7355;
+            stroke-width: 1.5;
+        }
+
+        .share-option-label {
+            font-size: 11px;
+            color: #5a4a3a;
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+
+        .share-panel-close {
             width: 100%;
             height: 44px;
-            background: none;
-            border: none;
-            color: #A64B3A;
-            font-size: 13px;
+            background: transparent;
+            border: 2px solid #3D2F2F;
+            border-radius: 10px;
+            color: #3D2F2F;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 16px;
             letter-spacing: 1px;
+            transition: all 0.2s ease;
+        }
+
+        .share-panel-close:active {
+            background: rgba(61, 47, 47, 0.05);
+            transform: scale(0.98);
         }
 
         /* 确认对话框 */
@@ -2118,6 +2327,60 @@
 
                 <!-- 确认对话框 -->
                 <div class="confirm-dialog" id="confirmDialog"></div>
+                
+                <!-- 分享面板遮罩层 -->
+                <div class="share-overlay" id="shareOverlay" onclick="closeSharePanel()"></div>
+                
+                <!-- 分享面板 -->
+                <div class="share-panel" id="sharePanel">
+                    <div class="share-panel-title">分享宝藏</div>
+                    <div class="share-options">
+                        <div class="share-option" onclick="shareToWechat()">
+                            <div class="share-option-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <!-- 微信logo：两个对话气泡 -->
+                                    <path d="M8 14c-2.2 0-4-1.5-4-3.5S5.8 7 8 7s4 1.5 4 3.5S10.2 14 8 14z"/>
+                                    <circle cx="6.5" cy="9.5" r="0.8" fill="currentColor"/>
+                                    <circle cx="9.5" cy="9.5" r="0.8" fill="currentColor"/>
+                                    <path d="M16 17c-2.5 0-4.5-1.5-4.5-3.5c0-0.8 0.3-1.5 0.8-2.1"/>
+                                    <path d="M20 13.5c0 2-2 3.5-4 3.5"/>
+                                    <circle cx="14.5" cy="13" r="0.7" fill="currentColor"/>
+                                    <circle cx="17.5" cy="13" r="0.7" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <div class="share-option-label">微信</div>
+                        </div>
+                        <div class="share-option" onclick="shareToXiaohongshu()">
+                            <div class="share-option-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <!-- 小红书logo：R标志 -->
+                                    <rect x="4" y="4" width="16" height="16" rx="3"/>
+                                    <path d="M9 9 L9 15 M9 9 L11.5 9 C12.3 9 13 9.7 13 10.5 C13 11.3 12.3 12 11.5 12 L9 12"/>
+                                    <path d="M11 12 L13 15"/>
+                                    <circle cx="15.5" cy="15" r="0.8" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <div class="share-option-label">小红书</div>
+                        </div>
+                        <div class="share-option" onclick="shareToQQ()">
+                            <div class="share-option-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <!-- QQ logo：企鹅简化版 -->
+                                    <ellipse cx="12" cy="11" rx="4.5" ry="5.5"/>
+                                    <circle cx="10.5" cy="10" r="0.8" fill="currentColor"/>
+                                    <circle cx="13.5" cy="10" r="0.8" fill="currentColor"/>
+                                    <path d="M12 13 Q11 14 10.5 14.5"/>
+                                    <path d="M12 13 Q13 14 13.5 14.5"/>
+                                    <path d="M7.5 13 C7 14.5 6.5 16 7 17 C7.5 18 9 17.5 9 17.5"/>
+                                    <path d="M16.5 13 C17 14.5 17.5 16 17 17 C16.5 18 15 17.5 15 17.5"/>
+                                    <path d="M10 17 Q12 18.5 14 17"/>
+                                </svg>
+                            </div>
+                            <div class="share-option-label">QQ</div>
+                        </div>
+                    </div>
+                    <button class="share-panel-close" onclick="closeSharePanel()">取消</button>
+                </div>
                 
                 <!-- API Key对话框已移除 - 开发者模式 -->
             </div>
@@ -3553,7 +3816,6 @@
             
             const modal = document.getElementById('treasurePreviewModal');
             modal.innerHTML = `
-                <button class="modal-close" onclick="closeTreasurePreview()">×</button>
                 <div class="preview-treasure-icon">
                     <div class="magic-circle-container ${getCircleClassName(circleType)}">
                         ${getCircleHTML(circleType)}
@@ -3573,7 +3835,31 @@
                 <div class="preview-crow-comment">"${treasure.comment}"</div>
                 <div class="preview-actions">
                     <button class="preview-btn save" onclick="saveTreasureToBox()">扔进宝箱</button>
-                    <button class="preview-btn cancel" onclick="cancelTreasure()">取消投递</button>
+                </div>
+                <div class="treasure-card-actions">
+                    <button class="icon-btn share-icon" onclick="openSharePanel()" title="分享">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="18" cy="5" r="3"/>
+                            <circle cx="6" cy="12" r="3"/>
+                            <circle cx="18" cy="19" r="3"/>
+                            <line x1="8.5" y1="13.5" x2="15.5" y2="17.5"/>
+                            <line x1="8.5" y1="10.5" x2="15.5" y2="6.5"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn download-icon" onclick="downloadTreasureCard()" title="保存图片">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn cancel-icon" onclick="cancelTreasure()" title="取消投递">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                    </button>
                 </div>
             `;
             
@@ -3986,7 +4272,32 @@
                     <span class="preview-treasure-time">${treasure.time}</span>
                 </div>
                 <div class="preview-crow-comment">"${treasure.comment}"</div>
-                <button class="delete-btn" onclick="confirmDelete(${treasure.id})">从宝箱移除</button>
+                <div class="treasure-card-actions">
+                    <button class="icon-btn share-icon" onclick="openSharePanel()" title="分享">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="18" cy="5" r="3"/>
+                            <circle cx="6" cy="12" r="3"/>
+                            <circle cx="18" cy="19" r="3"/>
+                            <line x1="8.5" y1="13.5" x2="15.5" y2="17.5"/>
+                            <line x1="8.5" y1="10.5" x2="15.5" y2="6.5"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn download-icon" onclick="downloadTreasureCard()" title="保存图片">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                    </button>
+                    <button class="icon-btn delete-icon" onclick="confirmDelete(${treasure.id})" title="删除">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="3 6 5 6 21 6"/>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            <line x1="10" y1="11" x2="10" y2="17"/>
+                            <line x1="14" y1="11" x2="14" y2="17"/>
+                        </svg>
+                    </button>
+                </div>
             `;
             
             // 创建粒子效果
@@ -3998,6 +4309,14 @@
 
         // 关闭弹窗
         function closeModal() {
+            const sharePanel = document.getElementById('sharePanel');
+            
+            // 如果分享面板是打开的，先关闭分享面板
+            if (sharePanel && sharePanel.classList.contains('active')) {
+                closeSharePanel();
+                return;
+            }
+            
             const overlay = document.getElementById('overlay');
             const treasureCardModal = document.getElementById('treasureCardModal');
             const treasurePreviewModal = document.getElementById('treasurePreviewModal');
@@ -4238,6 +4557,317 @@
             toast.textContent = message;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 2000);
+        }
+
+        // ==================== 分享功能 ====================
+        
+        // 打开分享面板
+        function openSharePanel() {
+            const sharePanel = document.getElementById('sharePanel');
+            const shareOverlay = document.getElementById('shareOverlay');
+            
+            shareOverlay.classList.add('active');
+            sharePanel.classList.add('active');
+        }
+        
+        // 关闭分享面板
+        function closeSharePanel() {
+            const sharePanel = document.getElementById('sharePanel');
+            const shareOverlay = document.getElementById('shareOverlay');
+            
+            sharePanel.classList.remove('active');
+            shareOverlay.classList.remove('active');
+        }
+        
+        // 截图并显示宝藏卡图片（供用户长按保存）
+        async function downloadTreasureCard() {
+            try {
+                // 获取当前显示的宝藏卡
+                const treasureCard = document.querySelector('.treasure-card-modal.active') || 
+                                   document.querySelector('.treasure-preview-modal.active');
+                
+                if (!treasureCard) {
+                    showToast('未找到宝藏卡');
+                    return;
+                }
+                
+                // 临时隐藏关闭按钮和操作按钮
+                const closeBtn = treasureCard.querySelector('.modal-close-btn, .modal-close');
+                const actionsBar = treasureCard.querySelector('.treasure-card-actions');
+                const previewActions = treasureCard.querySelector('.preview-actions');
+                
+                const elementsToHide = [closeBtn, actionsBar, previewActions].filter(el => el);
+                elementsToHide.forEach(el => el.style.display = 'none');
+                
+                // 使用 SVG foreignObject 方式生成图片
+                await generateCardImage(treasureCard);
+                
+                // 恢复隐藏的元素
+                elementsToHide.forEach(el => el.style.display = '');
+                
+            } catch (error) {
+                console.error('生成图片失败:', error);
+                showToast('生成失败，请重试');
+            }
+        }
+        
+        // 生成宝藏卡图片
+        async function generateCardImage(element) {
+            return new Promise((resolve, reject) => {
+                try {
+                    // 克隆元素
+                    const clone = element.cloneNode(true);
+                    
+                    // 设置克隆元素的样式
+                    clone.style.position = 'absolute';
+                    clone.style.left = '-9999px';
+                    clone.style.top = '0';
+                    clone.style.width = element.offsetWidth + 'px';
+                    clone.style.height = element.offsetHeight + 'px';
+                    clone.style.transform = 'none';
+                    clone.style.display = 'block';
+                    
+                    document.body.appendChild(clone);
+                    
+                    // 等待样式应用
+                    setTimeout(() => {
+                        const rect = element.getBoundingClientRect();
+                        const width = rect.width;
+                        const height = rect.height;
+                        
+                        // 创建 canvas
+                        const canvas = document.createElement('canvas');
+                        const scale = 2; // 高清
+                        canvas.width = width * scale;
+                        canvas.height = height * scale;
+                        
+                        const ctx = canvas.getContext('2d');
+                        ctx.scale(scale, scale);
+                        
+                        // 设置背景色
+                        ctx.fillStyle = '#E8E4D9';
+                        ctx.fillRect(0, 0, width, height);
+                        
+                        // 使用 SVG foreignObject
+                        const data = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+                                <foreignObject width="100%" height="100%">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Noto Serif SC', serif;">
+                                        ${clone.innerHTML}
+                                    </div>
+                                </foreignObject>
+                            </svg>
+                        `;
+                        
+                        const img = new Image();
+                        const blob = new Blob([data], { type: 'image/svg+xml' });
+                        const url = URL.createObjectURL(blob);
+                        
+                        img.onload = () => {
+                            ctx.drawImage(img, 0, 0, width, height);
+                            URL.revokeObjectURL(url);
+                            document.body.removeChild(clone);
+                            
+                            // 将 canvas 转为图片并显示
+                            canvas.toBlob(imageBlob => {
+                                const imageUrl = URL.createObjectURL(imageBlob);
+                                showImagePreview(imageUrl);
+                                resolve();
+                            }, 'image/png');
+                        };
+                        
+                        img.onerror = () => {
+                            URL.revokeObjectURL(url);
+                            document.body.removeChild(clone);
+                            reject(new Error('图片生成失败'));
+                        };
+                        
+                        img.src = url;
+                    }, 100);
+                    
+                } catch (error) {
+                    reject(error);
+                }
+            });
+        }
+        
+        // 显示图片预览（供用户长按保存）
+        function showImagePreview(imageUrl) {
+            // 创建图片预览遮罩
+            const previewOverlay = document.createElement('div');
+            previewOverlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                animation: fadeIn 0.3s ease;
+            `;
+            
+            // 提示文字
+            const tipText = document.createElement('div');
+            tipText.textContent = '长按图片保存到相册';
+            tipText.style.cssText = `
+                color: white;
+                font-size: 16px;
+                margin-bottom: 20px;
+                text-align: center;
+                letter-spacing: 1px;
+            `;
+            
+            // 图片
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.style.cssText = `
+                max-width: 90%;
+                max-height: 70vh;
+                border-radius: 16px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            `;
+            
+            // 关闭按钮
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '×';
+            closeBtn.style.cssText = `
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+                border: none;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                font-size: 28px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s;
+            `;
+            
+            closeBtn.onclick = () => {
+                document.body.removeChild(previewOverlay);
+                URL.revokeObjectURL(imageUrl);
+            };
+            
+            // 点击背景关闭
+            previewOverlay.onclick = (e) => {
+                if (e.target === previewOverlay) {
+                    document.body.removeChild(previewOverlay);
+                    URL.revokeObjectURL(imageUrl);
+                }
+            };
+            
+            previewOverlay.appendChild(closeBtn);
+            previewOverlay.appendChild(tipText);
+            previewOverlay.appendChild(img);
+            document.body.appendChild(previewOverlay);
+            
+            showToast('图片已生成');
+            closeSharePanel();
+        }
+        
+        // 分享到微信
+        async function shareToWechat() {
+            try {
+                const treasureCard = document.querySelector('.treasure-card-modal.active') || 
+                                   document.querySelector('.treasure-preview-modal.active');
+                
+                if (!treasureCard) {
+                    showToast('未找到宝藏卡');
+                    return;
+                }
+                
+                // 临时隐藏按钮
+                const closeBtn = treasureCard.querySelector('.modal-close-btn, .modal-close');
+                const actionsBar = treasureCard.querySelector('.treasure-card-actions');
+                const previewActions = treasureCard.querySelector('.preview-actions');
+                
+                const elementsToHide = [closeBtn, actionsBar, previewActions].filter(el => el);
+                elementsToHide.forEach(el => el.style.display = 'none');
+                
+                // 生成图片
+                await generateCardImage(treasureCard);
+                
+                elementsToHide.forEach(el => el.style.display = '');
+                
+                showToast('图片已生成，长按保存后分享到微信');
+                
+            } catch (error) {
+                console.error('分享失败:', error);
+                showToast('请先保存图片，然后手动分享');
+            }
+        }
+        
+        // 分享到小红书
+        async function shareToXiaohongshu() {
+            try {
+                const treasureCard = document.querySelector('.treasure-card-modal.active') || 
+                                   document.querySelector('.treasure-preview-modal.active');
+                
+                if (!treasureCard) {
+                    showToast('未找到宝藏卡');
+                    return;
+                }
+                
+                // 临时隐藏按钮
+                const closeBtn = treasureCard.querySelector('.modal-close-btn, .modal-close');
+                const actionsBar = treasureCard.querySelector('.treasure-card-actions');
+                const previewActions = treasureCard.querySelector('.preview-actions');
+                
+                const elementsToHide = [closeBtn, actionsBar, previewActions].filter(el => el);
+                elementsToHide.forEach(el => el.style.display = 'none');
+                
+                // 生成图片
+                await generateCardImage(treasureCard);
+                
+                elementsToHide.forEach(el => el.style.display = '');
+                
+                showToast('图片已生成，长按保存后发布到小红书');
+                
+            } catch (error) {
+                console.error('分享失败:', error);
+                showToast('请先保存图片，然后手动分享');
+            }
+        }
+        
+        // 分享到QQ
+        async function shareToQQ() {
+            try {
+                const treasureCard = document.querySelector('.treasure-card-modal.active') || 
+                                   document.querySelector('.treasure-preview-modal.active');
+                
+                if (!treasureCard) {
+                    showToast('未找到宝藏卡');
+                    return;
+                }
+                
+                const closeBtn = treasureCard.querySelector('.modal-close-btn, .modal-close');
+                const actionsBar = treasureCard.querySelector('.treasure-card-actions');
+                const previewActions = treasureCard.querySelector('.preview-actions');
+                
+                const elementsToHide = [closeBtn, actionsBar, previewActions].filter(el => el);
+                elementsToHide.forEach(el => el.style.display = 'none');
+                
+                // 生成图片
+                await generateCardImage(treasureCard);
+                
+                elementsToHide.forEach(el => el.style.display = '');
+                
+                showToast('图片已生成，长按保存后分享到QQ');
+                
+            } catch (error) {
+                console.error('分享失败:', error);
+                showToast('请先保存图片，然后手动分享');
+            }
         }
 
         // 本地存储
