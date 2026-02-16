@@ -4652,14 +4652,26 @@
             
             // 提取乌鸦评论
             const crowElem = element.querySelector('.preview-crow-comment, .crow-comment');
-            const crowComment = crowElem ? crowElem.textContent.trim() : '';
+            const crowComment = crowElem ? crowElem.textContent.trim().replace(/^"|"$/g, '') : '';
             
-            // 提取宝藏图标类型
-            const iconElem = element.querySelector('.treasure-icon svg');
+            // 从宝藏名称推断图标类型
             let iconType = 1; // 默认金币
-            if (iconElem && iconElem.dataset.type) {
-                iconType = parseInt(iconElem.dataset.type);
-            }
+            if (name.includes('金币')) iconType = 1;
+            else if (name.includes('羽')) iconType = 2;
+            else if (name.includes('酒杯')) iconType = 3;
+            else if (name.includes('空瓶')) iconType = 4;
+            else if (name.includes('花环')) iconType = 5;
+            else if (name.includes('铃')) iconType = 6;
+            else if (name.includes('卷轴')) iconType = 7;
+            else if (name.includes('信件')) iconType = 8;
+            else if (name.includes('护符')) iconType = 9;
+            else if (name.includes('宝石')) iconType = 10;
+            else if (name.includes('沙漏')) iconType = 11;
+            else if (name.includes('水晶')) iconType = 12;
+            else if (name.includes('铁戒')) iconType = 13;
+            else if (name.includes('箱')) iconType = 14;
+            else if (name.includes('王冠') || name.includes('王印')) iconType = 15;
+            else if (name.includes('短剑')) iconType = 16;
             
             // 提取魔法圈类型
             const circleContainer = element.querySelector('.magic-circle-container');
@@ -4753,8 +4765,8 @@
             let y = 40; // 顶部边距
             
             // 1. 图案+魔法环
-            const circleSize = 100;
-            y += circleSize + 8; // 图案高度 + 8px间距
+            const circleSize = 70; // 使用新的尺寸
+            y += circleSize + 24; // 图案高度 + 24px间距
             
             // 2. 宝藏名称
             y += 35;
@@ -4794,27 +4806,29 @@
             const centerX = width / 2;
             let y = 40;
             
-            // 1. 绘制魔法圈和宝藏图标（缩小尺寸）
-            const circleSize = 100; // 从140缩小到100
-            const iconSize = 50;    // 从70缩小到50
+            // 1. 绘制魔法圈和宝藏图标（进一步缩小尺寸，与运动环保持一致）
+            const circleSize = 70; // 从100缩小到70，匹配运动环比例
+            const iconSize = 40;    // 从50缩小到40
             drawMagicCircle(ctx, centerX, y + circleSize/2, circleSize, data.circleType);
-            drawTreasureIconSimple(ctx, centerX, y + circleSize/2, iconSize);
-            y += circleSize + 8; // 图案组合后+8px固定间距
+            drawTreasureIcon(ctx, centerX, y + circleSize/2, iconSize, data.iconType);
+            y += circleSize + 24; // 图案组合后+24px固定间距（从8px增加到24px）
             
-            // 2. 绘制宝藏名称
+            // 2. 绘制宝藏名称（使用与宝藏卡一致的字体样式）
             ctx.fillStyle = '#3D2F2F';
-            ctx.font = 'bold 22px "Noto Serif SC", serif';
+            ctx.font = '700 22px "Noto Serif SC", serif'; // 添加font-weight 700
             ctx.textAlign = 'center';
+            ctx.letterSpacing = '2px'; // 添加字间距
             ctx.fillText(data.name, centerX, y);
+            ctx.letterSpacing = '0px'; // 重置字间距
             y += 35;
             
             // 3. 分割线
             drawDivider(ctx, width, y);
             y += 25;
             
-            // 4. 绘制宝藏内容
+            // 4. 绘制宝藏内容（使用与宝藏卡一致的字体）
             if (data.content) {
-                ctx.fillStyle = '#5a4a3a';
+                ctx.fillStyle = '#3D2F2F'; // 修改为#3D2F2F匹配宝藏卡
                 ctx.font = '15px "Noto Serif SC", serif';
                 const lines = wrapText(ctx, data.content, width - 60);
                 lines.forEach(line => {
@@ -4862,14 +4876,14 @@
             const centerX = width / 2;
             const centerY = height / 2;
             
-            // 1. 绘制魔法圈和宝藏图标（缩小尺寸）
-            const circleSize = 90;  // 从120缩小到90
-            const iconSize = 45;     // 从60缩小到45
+            // 1. 绘制魔法圈和宝藏图标（缩小尺寸，与完整版保持一致比例）
+            const circleSize = 70;  // 从90缩小到70
+            const iconSize = 40;     // 从45缩小到40
             drawMagicCircle(ctx, centerX, centerY - 40, circleSize, data.circleType);
-            drawTreasureIconSimple(ctx, centerX, centerY - 40, iconSize);
+            drawTreasureIcon(ctx, centerX, centerY - 40, iconSize, data.iconType);
             
             // 2. 分割线（图案和文字之间）
-            const dividerY = centerY + 30;
+            const dividerY = centerY + 20; // 调整分割线位置
             const dividerWidth = width * 0.6;
             const startX = (width - dividerWidth) / 2;
             const endX = startX + dividerWidth;
@@ -4886,11 +4900,16 @@
             ctx.lineTo(endX, dividerY);
             ctx.stroke();
             
-            // 3. 绘制宝藏名称
+            // 3. 绘制宝藏名称（使用与宝藏卡一致的字体）
             ctx.fillStyle = '#3D2F2F';
             ctx.font = '600 18px "Noto Serif SC", serif';
             ctx.textAlign = 'center';
-            ctx.fillText(data.name, centerX, centerY + 60);
+            ctx.letterSpacing = '2px';
+            ctx.fillText(data.name, centerX, centerY + 50);
+            ctx.letterSpacing = '0px';
+            
+            // 4. 底部固定边距36px（通过返回值或在高度计算中体现）
+            // 简约版固定高度已经包含了合适的边距
         }
         
         // 绘制分割线
@@ -4911,134 +4930,457 @@
             ctx.stroke();
         }
         
-        // 绘制魔法圈（静态版本）
+        // 绘制魔法圈（匹配运动版本的样式）
         function drawMagicCircle(ctx, x, y, size, type) {
             const radius = size / 2;
             ctx.strokeStyle = '#C9A961';
             ctx.fillStyle = '#C9A961';
             
             switch(type) {
-                case 1: // 经典六芒星
-                    // 外圆
+                case 1: // 经典六芒星环 - 匹配 .circle-classic
+                    // 外圆 (100%, border: 3px)
                     ctx.lineWidth = 3;
+                    ctx.globalAlpha = 0.8;
                     ctx.beginPath();
                     ctx.arc(x, y, radius, 0, Math.PI * 2);
                     ctx.stroke();
                     
-                    // 内圆
+                    // 内圆 (85%, border: 2px)
                     ctx.lineWidth = 2;
+                    ctx.globalAlpha = 0.6;
                     ctx.beginPath();
-                    ctx.arc(x, y, radius * 0.7, 0, Math.PI * 2);
+                    ctx.arc(x, y, radius * 0.85, 0, Math.PI * 2);
                     ctx.stroke();
+                    ctx.globalAlpha = 1.0;
                     
-                    // 六个点
-                    const dotPositions = [
-                        [0, -radius - 4],
-                        [0, radius + 4],
-                        [-radius - 4, 0],
-                        [radius + 4, 0],
-                        [radius * 0.6, -radius * 0.6],
-                        [-radius * 0.6, radius * 0.6]
+                    // 6个装饰点 (8px直径)
+                    const dot1Positions = [
+                        [0, -radius - 6],      // 上
+                        [radius + 6, 0],       // 右
+                        [0, radius + 6],       // 下
+                        [-radius - 6, 0],      // 左
+                        [radius * 0.7, -radius * 0.7],  // 右上
+                        [-radius * 0.7, radius * 0.7]   // 左下
                     ];
-                    dotPositions.forEach(([dx, dy]) => {
+                    dot1Positions.forEach(([dx, dy]) => {
                         ctx.beginPath();
                         ctx.arc(x + dx, y + dy, 4, 0, Math.PI * 2);
                         ctx.fill();
                     });
                     break;
                     
-                case 2: // 符文三环
+                case 2: // 符文三环 - 匹配 .circle-rune
+                    // 外环 (100%, border: 2px)
                     ctx.lineWidth = 2;
-                    [1, 0.75, 0.5].forEach(scale => {
-                        ctx.beginPath();
-                        ctx.arc(x, y, radius * scale, 0, Math.PI * 2);
-                        ctx.stroke();
-                    });
+                    ctx.globalAlpha = 0.8;
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, Math.PI * 2);
+                    ctx.stroke();
                     
-                    // 符文符号
-                    ctx.font = '20px serif';
+                    // 中环 (90%, border: 2px, dashed)
+                    ctx.globalAlpha = 0.6;
+                    ctx.setLineDash([5, 3]);
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius * 0.9, 0, Math.PI * 2);
+                    ctx.stroke();
+                    
+                    // 内环 (75%, border: 2px)
+                    ctx.setLineDash([]);
+                    ctx.globalAlpha = 0.4;
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius * 0.75, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.globalAlpha = 1.0;
+                    
+                    // 符文符号 (font-size: 12px)
+                    ctx.font = 'bold 12px serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    const runes = ['᚛', '᚜', 'ᚑ', 'ᚐ'];
-                    const runePos = [[0, -radius - 10], [0, radius + 10], [-radius - 10, 0], [radius + 10, 0]];
+                    const runes = ['ᚱ', 'ᚨ', 'ᚹ', 'ᛖ'];
+                    const runePos = [
+                        [0, -radius - 8],      // 上
+                        [radius + 8, 0],       // 右
+                        [0, radius + 8],       // 下
+                        [-radius - 8, 0]       // 左
+                    ];
                     runes.forEach((rune, i) => {
                         ctx.fillText(rune, x + runePos[i][0], y + runePos[i][1]);
                     });
                     break;
                     
-                case 3: // 阴阳螺旋
-                    ctx.lineWidth = 2;
-                    // 外圆上半
+                case 3: // 阴阳螺旋环 - 匹配 .circle-spiral
+                    // 外螺旋环 (100%, border-top & border-right: 3px)
+                    ctx.lineWidth = 3;
+                    ctx.globalAlpha = 0.7;
                     ctx.beginPath();
-                    ctx.arc(x, y, radius, Math.PI, Math.PI * 2);
+                    ctx.arc(x, y, radius, -Math.PI/2, Math.PI/2); // 右半圆
                     ctx.stroke();
-                    // 外圆下半
+                    
+                    // 内螺旋环 (85%, border-left & border-bottom: 3px)
+                    ctx.globalAlpha = 0.5;
                     ctx.beginPath();
-                    ctx.arc(x, y, radius, 0, Math.PI);
+                    ctx.arc(x, y, radius * 0.85, Math.PI/2, Math.PI * 1.5); // 左半圆
                     ctx.stroke();
-                    // 内圆上半
-                    ctx.beginPath();
-                    ctx.arc(x, y, radius * 0.7, Math.PI, Math.PI * 2);
-                    ctx.stroke();
-                    // 内圆下半
-                    ctx.beginPath();
-                    ctx.arc(x, y, radius * 0.7, 0, Math.PI);
-                    ctx.stroke();
+                    ctx.globalAlpha = 1.0;
                     break;
                     
-                case 6: // 古文封印
-                    // 双线外圆
+                case 6: // 古文封印环 - 匹配 .circle-ancient
+                    // 外双线圆 (100%, border: 3px double)
                     ctx.lineWidth = 3;
+                    ctx.globalAlpha = 0.7;
                     ctx.beginPath();
                     ctx.arc(x, y, radius, 0, Math.PI * 2);
                     ctx.stroke();
                     
-                    // 内圆
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 1;
                     ctx.beginPath();
-                    ctx.arc(x, y, radius * 0.6, 0, Math.PI * 2);
+                    ctx.arc(x, y, radius - 4, 0, Math.PI * 2);
                     ctx.stroke();
                     
-                    // 古文符号
-                    ctx.font = 'bold 24px serif';
+                    // 内圆 (80%, border: 2px)
+                    ctx.lineWidth = 2;
+                    ctx.globalAlpha = 0.5;
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius * 0.8, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.globalAlpha = 1.0;
+                    
+                    // 古文符号 (font-size: 14px)
+                    ctx.font = 'bold 14px serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    const symbols = ['卍', '卐', '☰', '☷'];
-                    const symPos = [[0, -radius - 15], [0, radius + 15], [-radius - 15, 0], [radius + 15, 0]];
+                    const symbols = ['☰', '☱', '☲', '☳'];
+                    const symPos = [
+                        [0, -radius - 10],     // 上
+                        [radius + 10, 0],      // 右
+                        [0, radius + 10],      // 下
+                        [-radius - 10, 0]      // 左
+                    ];
                     symbols.forEach((sym, i) => {
                         ctx.fillText(sym, x + symPos[i][0], y + symPos[i][1]);
                     });
                     break;
+                    
+                default:
+                    // 默认简单圆环
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.arc(x, y, radius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    break;
             }
         }
         
-        // 简化的宝藏图标绘制（示例：金币）
-        function drawTreasureIconSimple(ctx, x, y, size) {
-            const radius = size / 2.5;
+        // 绘制宝藏图标（支持所有类型）
+        function drawTreasureIcon(ctx, x, y, size, iconType) {
+            const color = '#C9A961';
+            const darkColor = '#8B6F47';
+            const scale = size / 100; // 基于100x100的viewBox缩放
             
-            // 外圆
-            ctx.fillStyle = '#C9A961';
-            ctx.beginPath();
-            ctx.arc(x, y, radius, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.save();
+            ctx.translate(x - size/2, y - size/2);
+            ctx.scale(scale, scale);
             
-            ctx.strokeStyle = '#8B6F47';
-            ctx.lineWidth = 3;
-            ctx.stroke();
+            // 根据iconType绘制不同的图标
+            switch(iconType) {
+                case 1: // 金币
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(50, 50, 35, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = darkColor;
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.arc(50, 50, 28, 0, Math.PI * 2);
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    ctx.fillStyle = darkColor;
+                    ctx.font = 'bold 32px serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('¥', 50, 55);
+                    break;
+                    
+                case 2: // 羽毛
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 4;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(50, 15);
+                    ctx.quadraticCurveTo(48, 35, 46, 55);
+                    ctx.quadraticCurveTo(44, 75, 42, 90);
+                    ctx.stroke();
+                    
+                    // 羽毛分支
+                    ctx.lineWidth = 2;
+                    for(let i = 0; i < 5; i++) {
+                        const yPos = 30 + i * 10;
+                        ctx.beginPath();
+                        ctx.moveTo(46 - i * 0.4, yPos);
+                        ctx.quadraticCurveTo(30 - i * 2, yPos + 2, 25 - i * 3, yPos + 5);
+                        ctx.stroke();
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(54 + i * 0.4, yPos);
+                        ctx.quadraticCurveTo(70 + i * 2, yPos + 2, 75 + i * 3, yPos + 5);
+                        ctx.stroke();
+                    }
+                    break;
+                    
+                case 3: // 酒杯
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(30, 20);
+                    ctx.lineTo(35, 60);
+                    ctx.quadraticCurveTo(35, 75, 50, 75);
+                    ctx.quadraticCurveTo(65, 75, 65, 60);
+                    ctx.lineTo(70, 20);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.fillRect(25, 15, 50, 8);
+                    ctx.fillRect(45, 75, 10, 15);
+                    break;
+                    
+                case 4: // 空瓶
+                    ctx.save();
+                    ctx.translate(50, 50);
+                    ctx.rotate(-0.17); // -10度
+                    ctx.translate(-50, -50);
+                    
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(42, 25);
+                    ctx.lineTo(42, 35);
+                    ctx.quadraticCurveTo(40, 40, 40, 45);
+                    ctx.lineTo(40, 70);
+                    ctx.quadraticCurveTo(40, 75, 45, 75);
+                    ctx.lineTo(55, 75);
+                    ctx.quadraticCurveTo(60, 75, 60, 70);
+                    ctx.lineTo(60, 45);
+                    ctx.quadraticCurveTo(60, 40, 58, 35);
+                    ctx.lineTo(58, 25);
+                    ctx.closePath();
+                    ctx.stroke();
+                    
+                    ctx.strokeRect(44, 18, 12, 7);
+                    ctx.restore();
+                    break;
+                    
+                case 5: // 花环
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.arc(50, 50, 30, 0, Math.PI * 2);
+                    ctx.stroke();
+                    
+                    ctx.fillStyle = color;
+                    [[50, 20], [80, 50], [50, 80], [20, 50]].forEach(([cx, cy]) => {
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                    
+                    ctx.fillStyle = darkColor;
+                    [[65, 30], [70, 70], [30, 70], [35, 30]].forEach(([cx, cy]) => {
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                    break;
+                    
+                case 6: // 铃铛
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = darkColor;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(50, 20);
+                    ctx.lineTo(35, 60);
+                    ctx.quadraticCurveTo(35, 70, 50, 70);
+                    ctx.quadraticCurveTo(65, 70, 65, 60);
+                    ctx.lineTo(50, 20);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    ctx.fillStyle = darkColor;
+                    ctx.beginPath();
+                    ctx.arc(50, 72, 6, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = darkColor;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(50, 10);
+                    ctx.lineTo(50, 20);
+                    ctx.stroke();
+                    
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(50, 10, 4, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                    
+                case 7: // 卷轴
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = darkColor;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(25, 30);
+                    ctx.quadraticCurveTo(20, 50, 25, 70);
+                    ctx.lineTo(75, 70);
+                    ctx.quadraticCurveTo(80, 50, 75, 30);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    ctx.fillStyle = darkColor;
+                    ctx.beginPath();
+                    ctx.ellipse(25, 50, 5, 22, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.ellipse(75, 50, 5, 22, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.strokeStyle = darkColor;
+                    ctx.lineWidth = 2;
+                    [40, 50, 60].forEach((yPos) => {
+                        ctx.beginPath();
+                        ctx.moveTo(35, yPos);
+                        ctx.lineTo(65, yPos);
+                        ctx.stroke();
+                    });
+                    break;
+                    
+                case 10: // 宝石
+                    ctx.fillStyle = '#4A90E2';
+                    ctx.strokeStyle = '#2E5C8A';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(50, 20);
+                    ctx.lineTo(70, 40);
+                    ctx.lineTo(60, 75);
+                    ctx.lineTo(40, 75);
+                    ctx.lineTo(30, 40);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    ctx.fillStyle = '#5BA3F5';
+                    ctx.globalAlpha = 0.7;
+                    ctx.beginPath();
+                    ctx.moveTo(50, 20);
+                    ctx.lineTo(70, 40);
+                    ctx.lineTo(50, 50);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.globalAlpha = 1.0;
+                    break;
+                    
+                case 12: // 水晶
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = darkColor;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(50, 20);
+                    ctx.lineTo(65, 40);
+                    ctx.lineTo(60, 70);
+                    ctx.lineTo(40, 70);
+                    ctx.lineTo(35, 40);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(50, 20);
+                    ctx.lineTo(50, 70);
+                    ctx.stroke();
+                    ctx.beginPath();
+                    ctx.moveTo(35, 40);
+                    ctx.lineTo(65, 40);
+                    ctx.stroke();
+                    break;
+                    
+                case 14: // 箱子
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = darkColor;
+                    ctx.lineWidth = 3;
+                    ctx.fillRect(25, 40, 50, 35);
+                    ctx.strokeRect(25, 40, 50, 35);
+                    
+                    ctx.fillStyle = darkColor;
+                    ctx.beginPath();
+                    ctx.moveTo(25, 40);
+                    ctx.lineTo(35, 30);
+                    ctx.lineTo(85, 30);
+                    ctx.lineTo(75, 40);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    ctx.fillRect(25, 40, 50, 8);
+                    ctx.fillRect(47, 52, 6, 15);
+                    
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(50, 62, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                    
+                case 15: // 王冠
+                    ctx.fillStyle = color;
+                    ctx.strokeStyle = darkColor;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(25, 55);
+                    ctx.lineTo(30, 40);
+                    ctx.lineTo(50, 50);
+                    ctx.lineTo(70, 40);
+                    ctx.lineTo(75, 55);
+                    ctx.lineTo(65, 65);
+                    ctx.lineTo(35, 65);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    
+                    [[30, 40], [50, 50], [70, 40]].forEach(([cx, cy]) => {
+                        ctx.fillStyle = color;
+                        ctx.strokeStyle = darkColor;
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                    });
+                    break;
+                    
+                default: // 默认使用金币
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(50, 50, 35, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = darkColor;
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    
+                    ctx.beginPath();
+                    ctx.arc(50, 50, 28, 0, Math.PI * 2);
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    ctx.fillStyle = darkColor;
+                    ctx.font = 'bold 32px serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('¥', 50, 55);
+                    break;
+            }
             
-            // 内圆
-            ctx.strokeStyle = '#8B6F47';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.arc(x, y, radius * 0.8, 0, Math.PI * 2);
-            ctx.stroke();
-            
-            // ¥ 符号
-            ctx.fillStyle = '#8B6F47';
-            ctx.font = `bold ${size * 0.35}px serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('¥', x, y + size * 0.05);
+            ctx.restore();
         }
         
         // 文本换行辅助函数
