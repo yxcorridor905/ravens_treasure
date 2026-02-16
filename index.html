@@ -2119,18 +2119,18 @@
 
                             <!-- 中心六芒星 - 脉动 + 慢速旋转 -->
                             <svg class="center-star" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
-                                <!-- 标准六芒星 -->
+                                <!-- 标准六芒星 - 使用polyline代替path避免线条延伸 -->
                                 <!-- 上三角 -->
-                                <path d="M 140 84 L 188 168 L 92 168 Z" 
-                                      fill="none" stroke="#C9A961" stroke-width="3"/>
+                                <polyline points="140,84 188,168 92,168 140,84" 
+                                      fill="none" stroke="#C9A961" stroke-width="3" stroke-linejoin="miter"/>
                                 
                                 <!-- 下三角 -->
-                                <path d="M 140 196 L 92 112 L 188 112 Z" 
-                                      fill="none" stroke="#C9A961" stroke-width="3"/>
+                                <polyline points="140,196 92,112 188,112 140,196" 
+                                      fill="none" stroke="#C9A961" stroke-width="3" stroke-linejoin="miter"/>
                                 
                                 <!-- 内部正六边形 -->
-                                <path d="M 140 116 L 161 127 L 161 153 L 140 164 L 119 153 L 119 127 Z" 
-                                      fill="none" stroke="#5D4E37" stroke-width="2"/>
+                                <polyline points="140,116 161,127 161,153 140,164 119,153 119,127 140,116" 
+                                      fill="none" stroke="#5D4E37" stroke-width="2" stroke-linejoin="miter"/>
                                 
                                 <!-- 六个交点的小圆 -->
                                 <circle cx="140" cy="116" r="3.5" fill="#C9A961"/>
@@ -3222,6 +3222,109 @@
             return RAVEN_LANGUAGE.general[Math.floor(Math.random() * RAVEN_LANGUAGE.general.length)];
         }
 
+        // 根据iconType生成宝藏SVG图案
+        function getTreasureSVGByType(iconType) {
+            const color = '#C9A961';
+            const darkColor = '#8B6F47';
+            
+            // 根据iconType返回对应的SVG
+            const svgMap = {
+                1: `<svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="35" fill="${color}" stroke="${darkColor}" stroke-width="3"/>
+                        <circle cx="50" cy="50" r="28" fill="none" stroke="${darkColor}" stroke-width="2"/>
+                        <text x="50" y="60" text-anchor="middle" font-size="32" font-weight="bold" fill="${darkColor}">¥</text>
+                    </svg>`,
+                2: `<svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <path d="M 50 15 Q 48 35, 46 55 Q 44 75, 42 90" 
+                              fill="none" stroke="${color}" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M 46 30 Q 30 32, 25 35" fill="none" stroke="${color}" stroke-width="2"/>
+                        <path d="M 45 40 Q 28 42, 22 45" fill="none" stroke="${color}" stroke-width="2"/>
+                        <path d="M 44 50 Q 26 52, 20 55" fill="none" stroke="${color}" stroke-width="2"/>
+                        <path d="M 43 60 Q 24 62, 18 65" fill="none" stroke="${color}" stroke-width="2"/>
+                        <path d="M 42 70 Q 22 72, 16 75" fill="none" stroke="${color}" stroke-width="2"/>
+                        <path d="M 54 30 Q 70 32, 75 35" fill="none" stroke="${color}" stroke-width="2"/>
+                        <path d="M 55 40 Q 72 42, 78 45" fill="none" stroke="${color}" stroke-width="2"/>
+                        <path d="M 56 50 Q 74 52, 80 55" fill="none" stroke="${color}" stroke-width="2"/>
+                        <path d="M 57 60 Q 76 62, 82 65" fill="none" stroke="${color}" stroke-width="2"/>
+                        <path d="M 58 70 Q 78 72, 84 75" fill="none" stroke="${color}" stroke-width="2"/>
+                    </svg>`,
+                3: `<svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <path d="M 30 20 L 35 60 Q 35 75, 50 75 Q 65 75, 65 60 L 70 20 Z" 
+                              fill="${color}" stroke="${color}" stroke-width="3"/>
+                        <rect x="25" y="15" width="50" height="8" fill="${color}" rx="2"/>
+                        <rect x="45" y="75" width="10" height="15" fill="${color}"/>
+                    </svg>`,
+                4: `<svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <g transform="rotate(-10 50 50)">
+                            <path d="M 42 25 L 42 35 Q 40 40, 40 45 L 40 70 Q 40 75, 45 75 L 55 75 Q 60 75, 60 70 L 60 45 Q 60 40, 58 35 L 58 25 Z" 
+                                  fill="none" stroke="${color}" stroke-width="3"/>
+                            <rect x="44" y="18" width="12" height="7" fill="none" stroke="${color}" stroke-width="3"/>
+                            <ellipse cx="50" cy="18" rx="6" ry="2" fill="none" stroke="${color}" stroke-width="2"/>
+                        </g>
+                    </svg>`,
+                5: `<svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="30" fill="none" stroke="${color}" stroke-width="4"/>
+                        <circle cx="50" cy="20" r="8" fill="${color}"/>
+                        <circle cx="80" cy="50" r="8" fill="${color}"/>
+                        <circle cx="50" cy="80" r="8" fill="${color}"/>
+                        <circle cx="20" cy="50" r="8" fill="${color}"/>
+                        <circle cx="65" cy="30" r="6" fill="${darkColor}"/>
+                        <circle cx="70" cy="70" r="6" fill="${darkColor}"/>
+                        <circle cx="30" cy="70" r="6" fill="${darkColor}"/>
+                        <circle cx="35" cy="30" r="6" fill="${darkColor}"/>
+                    </svg>`,
+                6: `<svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <path d="M 50 20 L 35 60 Q 35 70, 50 70 Q 65 70, 65 60 L 50 20 Z" 
+                              fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                        <circle cx="50" cy="72" r="6" fill="${darkColor}"/>
+                        <line x1="50" y1="10" x2="50" y2="20" stroke="${darkColor}" stroke-width="3"/>
+                        <circle cx="50" cy="10" r="4" fill="${color}"/>
+                    </svg>`,
+                7: `<svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <path d="M 25 30 Q 20 50, 25 70 L 75 70 Q 80 50, 75 30 Z" 
+                              fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                        <ellipse cx="25" cy="50" rx="5" ry="22" fill="${darkColor}"/>
+                        <ellipse cx="23" cy="50" rx="3" ry="20" fill="${color}"/>
+                        <ellipse cx="75" cy="50" rx="5" ry="22" fill="${darkColor}"/>
+                        <ellipse cx="77" cy="50" rx="3" ry="20" fill="${color}"/>
+                        <line x1="35" y1="40" x2="65" y2="40" stroke="${darkColor}" stroke-width="2"/>
+                        <line x1="35" y1="50" x2="65" y2="50" stroke="${darkColor}" stroke-width="2"/>
+                        <line x1="35" y1="60" x2="65" y2="60" stroke="${darkColor}" stroke-width="2"/>
+                    </svg>`,
+                10: `<svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <polygon points="50,20 70,40 60,75 40,75 30,40" fill="#4A90E2" stroke="#2E5C8A" stroke-width="3"/>
+                        <polygon points="50,20 70,40 50,50" fill="#5BA3F5" opacity="0.7"/>
+                        <polygon points="50,20 30,40 50,50" fill="#357ABD" opacity="0.7"/>
+                        <path d="M 30 40 L 50 50 L 40 75" fill="#2E5C8A" opacity="0.5"/>
+                        <path d="M 70 40 L 50 50 L 60 75" fill="#5BA3F5" opacity="0.5"/>
+                    </svg>`,
+                12: `<svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <polygon points="50,20 65,40 60,70 40,70 35,40" fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                        <line x1="50" y1="20" x2="50" y2="70" stroke="${darkColor}" stroke-width="2"/>
+                        <line x1="35" y1="40" x2="65" y2="40" stroke="${darkColor}" stroke-width="2"/>
+                        <line x1="40" y1="70" x2="65" y2="40" stroke="${darkColor}" stroke-width="1" opacity="0.5"/>
+                        <line x1="60" y1="70" x2="35" y2="40" stroke="${darkColor}" stroke-width="1" opacity="0.5"/>
+                        <circle cx="45" cy="35" r="3" fill="white" opacity="0.6"/>
+                    </svg>`,
+                14: `<svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <rect x="25" y="40" width="50" height="35" fill="${color}" stroke="${darkColor}" stroke-width="3"/>
+                        <path d="M 25 40 L 35 30 L 85 30 L 75 40 Z" fill="${darkColor}"/>
+                        <rect x="25" y="40" width="50" height="8" fill="${darkColor}"/>
+                        <rect x="47" y="52" width="6" height="15" fill="${darkColor}" rx="1"/>
+                        <circle cx="50" cy="62" r="3" fill="${color}"/>
+                        <line x1="30" y1="48" x2="70" y2="48" stroke="${color}" stroke-width="2"/>
+                    </svg>`,
+                15: `<svg class="treasure-svg-icon" viewBox="0 0 100 100">
+                        <path d="M 25 55 L 30 40 L 50 50 L 70 40 L 75 55 L 65 65 L 35 65 Z" fill="${color}" stroke="${darkColor}" stroke-width="3"/>
+                        <circle cx="30" cy="40" r="5" fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                        <circle cx="50" cy="50" r="5" fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                        <circle cx="70" cy="40" r="5" fill="${color}" stroke="${darkColor}" stroke-width="2"/>
+                    </svg>`
+            };
+            
+            return svgMap[iconType] || svgMap[1]; // 默认返回金币
+        }
+
         // 生成宝藏SVG图案
         function getTreasureSVG(treasureName) {
             const color = '#C9A961';
@@ -3769,6 +3872,10 @@
                 // 使用AI服务生成宝藏
                 const aiResult = await aiService.generateTreasure(selectedEmotion, content);
                 
+                // 随机选择图标类型 (1-16)
+                const iconTypes = [1, 2, 3, 4, 5, 6, 7, 10, 12, 14, 15];
+                const randomIconType = iconTypes[Math.floor(Math.random() * iconTypes.length)];
+                
                 const treasure = {
                     id: Date.now(),
                     name: aiResult.treasure_name,
@@ -3782,7 +3889,8 @@
                         hour: '2-digit', 
                         minute: '2-digit' 
                     }),
-                    source: aiResult.source // 'ai' 或 'local'
+                    source: aiResult.source, // 'ai' 或 'local'
+                    iconType: randomIconType // 保存图标类型
                 };
 
                 btn.classList.remove('loading');
@@ -3813,13 +3921,18 @@
             const circleTypes = [1, 2, 3, 6];
             const circleType = circleTypes[Math.floor(Math.random() * circleTypes.length)];
             
+            // 使用treasure中保存的iconType，如果没有则从名称推断
+            const treasureSVG = treasure.iconType ? 
+                getTreasureSVGByType(treasure.iconType) : 
+                getTreasureSVG(treasure.name);
+            
             const modal = document.getElementById('treasurePreviewModal');
             modal.innerHTML = `
                 <div class="preview-treasure-icon">
-                    <div class="magic-circle-container ${getCircleClassName(circleType)}">
+                    <div class="magic-circle-container ${getCircleClassName(circleType)}" data-circle-type="${circleType}" data-icon-type="${treasure.iconType || 1}">
                         ${getCircleHTML(circleType)}
                         <div class="particles-container" id="preview-particles"></div>
-                        ${getTreasureSVG(treasure.name)}
+                        ${treasureSVG}
                     </div>
                 </div>
                 <div class="preview-treasure-name">${treasure.name}</div>
@@ -4251,14 +4364,19 @@
             const circleTypes = [1, 2, 3, 6];
             const circleType = circleTypes[Math.floor(Math.random() * circleTypes.length)];
             
+            // 使用treasure中保存的iconType，如果没有则从名称推断
+            const treasureSVG = treasure.iconType ? 
+                getTreasureSVGByType(treasure.iconType) : 
+                getTreasureSVG(treasure.name);
+            
             const modal = document.getElementById('treasureCardModal');
             modal.innerHTML = `
                 <button class="modal-close-btn" onclick="closeModal()">×</button>
                 <div class="treasure-card-icon" onclick="generateStickerFromIcon()" style="cursor: pointer;" title="点击生成简约版贴纸">
-                    <div class="magic-circle-container ${getCircleClassName(circleType)}" data-circle-type="${circleType}">
+                    <div class="magic-circle-container ${getCircleClassName(circleType)}" data-circle-type="${circleType}" data-icon-type="${treasure.iconType || 1}">
                         ${getCircleHTML(circleType)}
                         <div class="particles-container" id="card-particles"></div>
-                        ${getTreasureSVG(treasure.name)}
+                        ${treasureSVG}
                     </div>
                 </div>
                 <div class="treasure-card-name">${treasure.name}</div>
@@ -4654,38 +4772,24 @@
             const crowElem = element.querySelector('.preview-crow-comment, .crow-comment');
             const crowComment = crowElem ? crowElem.textContent.trim().replace(/^"|"$/g, '') : '';
             
-            // 从宝藏名称推断图标类型
+            // 从magic-circle-container的data-icon-type属性提取图标类型
+            const circleContainer = element.querySelector('.magic-circle-container');
             let iconType = 1; // 默认金币
-            if (name.includes('金币')) iconType = 1;
-            else if (name.includes('羽')) iconType = 2;
-            else if (name.includes('酒杯')) iconType = 3;
-            else if (name.includes('空瓶')) iconType = 4;
-            else if (name.includes('花环')) iconType = 5;
-            else if (name.includes('铃')) iconType = 6;
-            else if (name.includes('卷轴')) iconType = 7;
-            else if (name.includes('信件')) iconType = 8;
-            else if (name.includes('护符')) iconType = 9;
-            else if (name.includes('宝石')) iconType = 10;
-            else if (name.includes('沙漏')) iconType = 11;
-            else if (name.includes('水晶')) iconType = 12;
-            else if (name.includes('铁戒')) iconType = 13;
-            else if (name.includes('箱')) iconType = 14;
-            else if (name.includes('王冠') || name.includes('王印')) iconType = 15;
-            else if (name.includes('短剑')) iconType = 16;
+            if (circleContainer && circleContainer.dataset.iconType) {
+                iconType = parseInt(circleContainer.dataset.iconType);
+            }
             
             // 提取魔法圈类型
-            const circleContainer = element.querySelector('.magic-circle-container');
             let circleType = 3; // 默认阴阳螺旋
             if (circleContainer && circleContainer.dataset.circleType) {
                 circleType = parseInt(circleContainer.dataset.circleType);
             } else {
                 // 备用方案：通过class判断
-                const circleElem = element.querySelector('.magic-circle-container');
-                if (circleElem) {
-                    if (circleElem.classList.contains('circle-classic')) circleType = 1;
-                    else if (circleElem.classList.contains('circle-rune')) circleType = 2;
-                    else if (circleElem.classList.contains('circle-spiral')) circleType = 3;
-                    else if (circleElem.classList.contains('circle-ancient')) circleType = 6;
+                if (circleContainer) {
+                    if (circleContainer.classList.contains('circle-classic')) circleType = 1;
+                    else if (circleContainer.classList.contains('circle-rune')) circleType = 2;
+                    else if (circleContainer.classList.contains('circle-spiral')) circleType = 3;
+                    else if (circleContainer.classList.contains('circle-ancient')) circleType = 6;
                 }
             }
             
@@ -5413,7 +5517,7 @@
             // 如果已经有预览，先关闭
             closeImagePreview();
             
-            // 创建图片预览遮罩
+            // 创建图片预览遮罩 - 使用与宝藏卡一致的透明灰色
             const previewOverlay = document.createElement('div');
             previewOverlay.id = 'imagePreviewOverlay';
             previewOverlay.style.cssText = `
@@ -5422,7 +5526,7 @@
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.9);
+                background: rgba(0, 0, 0, 0.5);
                 z-index: 1000;
                 display: flex;
                 flex-direction: column;
@@ -5448,54 +5552,10 @@
             img.src = imageUrl;
             img.style.cssText = `
                 max-width: 90%;
-                max-height: 60vh;
+                max-height: 70vh;
                 border-radius: 16px;
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             `;
-            
-            // 下载按钮
-            const downloadBtn = document.createElement('button');
-            downloadBtn.textContent = '下载图片';
-            downloadBtn.style.cssText = `
-                margin-top: 20px;
-                padding: 12px 32px;
-                background: #8b7355;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                font-size: 14px;
-                font-weight: 600;
-                cursor: pointer;
-                letter-spacing: 1px;
-                transition: all 0.2s;
-            `;
-            
-            downloadBtn.onclick = async () => {
-                try {
-                    // 从imageUrl获取blob
-                    const response = await fetch(imageUrl);
-                    const blob = await response.blob();
-                    
-                    // 创建下载链接
-                    const downloadLink = document.createElement('a');
-                    const timestamp = new Date().getTime();
-                    downloadLink.href = URL.createObjectURL(blob);
-                    downloadLink.download = `乌鸦的宝藏_${timestamp}.png`;
-                    
-                    // 触发下载
-                    document.body.appendChild(downloadLink);
-                    downloadLink.click();
-                    document.body.removeChild(downloadLink);
-                    
-                    // 释放URL
-                    URL.revokeObjectURL(downloadLink.href);
-                    
-                    showToast('图片已下载');
-                } catch (error) {
-                    console.error('下载失败:', error);
-                    showToast('下载失败，请长按图片保存');
-                }
-            };
             
             // 关闭按钮
             const closeBtn = document.createElement('button');
@@ -5532,7 +5592,6 @@
             previewOverlay.appendChild(closeBtn);
             previewOverlay.appendChild(tipText);
             previewOverlay.appendChild(img);
-            previewOverlay.appendChild(downloadBtn);
             document.body.appendChild(previewOverlay);
             
             // 保存imageUrl供清理时使用
