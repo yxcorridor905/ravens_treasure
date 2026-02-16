@@ -3921,15 +3921,14 @@
             const circleTypes = [1, 2, 3, 6];
             const circleType = circleTypes[Math.floor(Math.random() * circleTypes.length)];
             
-            // 使用treasure中保存的iconType，如果没有则从名称推断
-            const treasureSVG = treasure.iconType ? 
-                getTreasureSVGByType(treasure.iconType) : 
-                getTreasureSVG(treasure.name);
+            // 确保有iconType - 如果没有则从名称推断
+            const iconType = treasure.iconType || getIconTypeFromName(treasure.name);
+            const treasureSVG = getTreasureSVGByType(iconType);
             
             const modal = document.getElementById('treasurePreviewModal');
             modal.innerHTML = `
                 <div class="preview-treasure-icon">
-                    <div class="magic-circle-container ${getCircleClassName(circleType)}" data-circle-type="${circleType}" data-icon-type="${treasure.iconType || 1}">
+                    <div class="magic-circle-container ${getCircleClassName(circleType)}" data-circle-type="${circleType}" data-icon-type="${iconType}">
                         ${getCircleHTML(circleType)}
                         <div class="particles-container" id="preview-particles"></div>
                         ${treasureSVG}
@@ -4358,22 +4357,37 @@
             showTreasureCard(currentTreasure);
         }
 
+        // 从宝藏名称推断图标类型
+        function getIconTypeFromName(name) {
+            if (name.includes('金币')) return 1;
+            if (name.includes('羽')) return 2;
+            if (name.includes('酒杯')) return 3;
+            if (name.includes('空瓶') || name.includes('瓶')) return 4;
+            if (name.includes('花环')) return 5;
+            if (name.includes('铃')) return 6;
+            if (name.includes('卷轴')) return 7;
+            if (name.includes('宝石')) return 10;
+            if (name.includes('水晶')) return 12;
+            if (name.includes('箱')) return 14;
+            if (name.includes('王冠') || name.includes('王印')) return 15;
+            return 1; // 默认金币
+        }
+
         // 显示宝藏卡
         function showTreasureCard(treasure) {
             // 随机选择魔法阵类型（1,2,3,6）
             const circleTypes = [1, 2, 3, 6];
             const circleType = circleTypes[Math.floor(Math.random() * circleTypes.length)];
             
-            // 使用treasure中保存的iconType，如果没有则从名称推断
-            const treasureSVG = treasure.iconType ? 
-                getTreasureSVGByType(treasure.iconType) : 
-                getTreasureSVG(treasure.name);
+            // 确保有iconType - 如果没有则从名称推断
+            const iconType = treasure.iconType || getIconTypeFromName(treasure.name);
+            const treasureSVG = getTreasureSVGByType(iconType);
             
             const modal = document.getElementById('treasureCardModal');
             modal.innerHTML = `
                 <button class="modal-close-btn" onclick="closeModal()">×</button>
                 <div class="treasure-card-icon" onclick="generateStickerFromIcon()" style="cursor: pointer;" title="点击生成简约版贴纸">
-                    <div class="magic-circle-container ${getCircleClassName(circleType)}" data-circle-type="${circleType}" data-icon-type="${treasure.iconType || 1}">
+                    <div class="magic-circle-container ${getCircleClassName(circleType)}" data-circle-type="${circleType}" data-icon-type="${iconType}">
                         ${getCircleHTML(circleType)}
                         <div class="particles-container" id="card-particles"></div>
                         ${treasureSVG}
@@ -4775,8 +4789,14 @@
             // 从magic-circle-container的data-icon-type属性提取图标类型
             const circleContainer = element.querySelector('.magic-circle-container');
             let iconType = 1; // 默认金币
+            
             if (circleContainer && circleContainer.dataset.iconType) {
                 iconType = parseInt(circleContainer.dataset.iconType);
+                console.log('✅ 从data-icon-type读取到iconType:', iconType);
+            } else {
+                // 备用方案：从宝藏名称推断(用于旧宝藏)
+                iconType = getIconTypeFromName(name);
+                console.log('⚠️ 没有找到data-icon-type,从名称推断 iconType:', iconType);
             }
             
             // 提取魔法圈类型
@@ -4792,6 +4812,8 @@
                     else if (circleContainer.classList.contains('circle-ancient')) circleType = 6;
                 }
             }
+            
+            console.log('最终提取的数据:', { name, iconType, circleType });
             
             return {
                 name,
