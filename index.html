@@ -4118,16 +4118,17 @@
                 // 使用AI服务生成宝藏
                 const aiResult = await aiService.generateTreasure(selectedEmotion, content);
                 
-                // 随机选择图标类型（全图标库）
+                // 优先根据宝藏名称推断图标类型，推断不出来才随机
+                const inferredIconType = getIconTypeFromName(aiResult.treasure_name);
                 const iconTypes = [
-                    // 基础
-                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-                    // 自然元素
+                    1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16,
                     27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
-                    // 机械奇物
                     39, 41, 42
                 ];
-                const randomIconType = iconTypes[Math.floor(Math.random() * iconTypes.length)];
+                // 12 是默认水晶（推断失败时的返回值），此时才随机
+                const randomIconType = (inferredIconType !== 12)
+                    ? inferredIconType
+                    : iconTypes[Math.floor(Math.random() * iconTypes.length)];
                 
                 const treasure = {
                     id: Date.now(),
