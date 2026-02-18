@@ -1478,21 +1478,8 @@
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
-        /* 情绪tag颜色（使用emotion-icon的颜色作为背景） */
-        .preview-emotion-tag .emotion-icon {
-            display: none; /* 隐藏小圆点，只用文字 */
-        }
-        
-        /* 根据情绪设置preview-emotion-tag背景色 */
-        .preview-emotion-tag:has(.emotion-icon.舒爽) { background: #E8A95D; }
-        .preview-emotion-tag:has(.emotion-icon.明媚) { background: #F4D06F; color: #3D2F2F; } /* 明媚用深色文字 */
-        .preview-emotion-tag:has(.emotion-icon.灵感涌现) { background: #5B8C8A; }
-        .preview-emotion-tag:has(.emotion-icon.平静) { background: #7B9BA8; }
-        .preview-emotion-tag:has(.emotion-icon.自我安抚) { background: #A0937D; }
-        .preview-emotion-tag:has(.emotion-icon.烦躁) { background: #C77E6B; }
-        .preview-emotion-tag:has(.emotion-icon.焦虑) { background: #9B7FA5; }
-        .preview-emotion-tag:has(.emotion-icon.负重) { background: #6D6458; }
-        .preview-emotion-tag:has(.emotion-icon.愤怒) { background: #A64B3A; }
+        /* 情绪tag背景色由 inline style 的 emotionColor 控制，此处仅做兜底 */
+        .preview-emotion-tag { background: #C9A961; }
 
         .preview-treasure-time {
             font-size: 11px;
@@ -4036,6 +4023,7 @@
 
         // 全局状态
         let selectedEmotion = '';
+        let selectedEmotionColor = '#C9A961';
         let treasures = [];
         let currentTreasure = null;
 
@@ -4162,6 +4150,7 @@
                 // 更新selectedEmotion并激活生成按钮
                 AudioSystem.playButtonClick();
                 selectedEmotion = emotion;
+                selectedEmotionColor = col;
                 updateGenerateButton();
             }
 
@@ -4213,6 +4202,7 @@
                     name: aiResult.treasure_name,
                     content: content,
                     emotion: selectedEmotion,
+                    emotionColor: selectedEmotionColor,
                     comment: aiResult.crow_comment,
                     timestamp: Date.now(), // 原始时间戳，用于计算记录天数
                     time: new Date().toLocaleString('zh-CN', { 
@@ -4272,8 +4262,7 @@
                 <div class="preview-treasure-name">${treasure.name}</div>
                 <div class="preview-treasure-content">${treasure.content}</div>
                 <div class="preview-treasure-meta">
-                    <span class="preview-emotion-tag">
-                        <span class="emotion-icon ${treasure.emotion}"></span>
+                    <span class="preview-emotion-tag" style="background:${treasure.emotionColor || '#C9A961'};">
                         ${treasure.emotion}
                     </span>
                     <span class="preview-treasure-time">${treasure.time}</span>
@@ -4754,8 +4743,7 @@
                 <div class="treasure-card-name">${treasure.name}</div>
                 <div class="treasure-card-content">${treasure.content}</div>
                 <div class="preview-treasure-meta">
-                    <span class="preview-emotion-tag">
-                        <span class="emotion-icon ${treasure.emotion}"></span>
+                    <span class="preview-emotion-tag" style="background:${treasure.emotionColor || '#C9A961'};">
                         ${treasure.emotion}
                     </span>
                     <span class="preview-treasure-time">${treasure.time}</span>
