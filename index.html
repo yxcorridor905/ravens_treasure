@@ -2414,10 +2414,18 @@
 2. 写一句乌鸦点评（15-30字），给予温暖的鼓励或深刻的洞察
 
 宝藏名称要求：
-- 富有诗意和象征意义
-- 与情绪和内容相关
-- 可以是物品、自然现象、或抽象概念
-- 示例：晨光金币、静水护符、思绪之瓶、破晓者的徽章、回响的铃铛
+- 必须是 4-7 个字的具体物品名称
+- 格式严格遵循以下两种之一：
+  ① 形容词 + 名词：如"金色花环"、"碎裂的金币"、"发光符文石"
+  ② 名词修饰名词（名词 + 的/之 + 名词，或直接组合）：如"水晶符文"、"呼吸沙漏"、"思绪之瓶"
+- 名词必须是可感知的具体物品（硬币、花环、酒杯、符文、沙漏、信件、戒指、王印等）
+- 必须与用户的情绪状态和记录内容相关，名称应能让人联想到这段经历的核心感受
+- 禁止使用抽象词汇作为主体名词（如"徽章"可以，但"力量"、"感受"、"时刻"不行）
+- 禁止出现人名、人称（"者的"、"你的"等）
+- 情绪映射参考：
+  正向情绪（舒爽/明媚/灵感涌现）→ 倾向明亮、开放、流动的修饰词（金色、跃动、开封的、发光）
+  中性情绪（平静/自我安抚）→ 倾向静止、封闭、缓慢的修饰词（封存的、呼吸、镇定）
+  负向情绪（烦躁/焦虑/负重/愤怒）→ 倾向破损、沉重、紧张的修饰词（裂开的、未封口的、沉重、破碎的）
 
 点评要求：
 - 温暖、鼓励、有洞察力
@@ -4156,9 +4164,12 @@
 
         // 显示宝藏预览
         function showTreasurePreview(treasure) {
-            // 随机选择魔法阵类型（1,2,3,6）
+            // 如果宝藏已有固定的魔法阵类型则使用，否则随机并保存
             const circleTypes = [1, 2, 3, 6];
-            const circleType = circleTypes[Math.floor(Math.random() * circleTypes.length)];
+            if (!treasure.circleType) {
+                treasure.circleType = circleTypes[Math.floor(Math.random() * circleTypes.length)];
+            }
+            const circleType = treasure.circleType;
             
             // 确保有iconType - 如果没有则从名称推断
             const iconType = treasure.iconType || getIconTypeFromName(treasure.name);
@@ -4637,9 +4648,9 @@
 
         // 显示宝藏卡
         function showTreasureCard(treasure) {
-            // 随机选择魔法阵类型（1,2,3,6）
+            // 使用已保存的魔法阵类型，保证每次抽取显示一致；旧数据则随机
             const circleTypes = [1, 2, 3, 6];
-            const circleType = circleTypes[Math.floor(Math.random() * circleTypes.length)];
+            const circleType = treasure.circleType || circleTypes[Math.floor(Math.random() * circleTypes.length)];
             
             // 确保有iconType - 如果没有则从名称推断
             const iconType = treasure.iconType || getIconTypeFromName(treasure.name);
