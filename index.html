@@ -2562,8 +2562,7 @@
             const recentLabel = negCount >= 2 ? `最近${negCount}条连续负向情绪` : '';
 
             const parts = [timePeriod, todayLabel, prevContext, recentLabel].filter(Boolean);
-            return parts.join('
-');
+            return parts.join('\n');
         }
 
         // AI用户Prompt生成函数
@@ -4335,8 +4334,11 @@ ${ravenCtx}
 
             let _lastDragX = 0, _lastDragY = 0;
 
+            let _isDragging = false;
+
             function onDragStart(e) {
                 e.preventDefault();
+                _isDragging = true;
                 const rect = pad.getBoundingClientRect();
                 const src  = e.touches ? e.touches[0] : e;
                 _lastDragX = src.clientX; _lastDragY = src.clientY;
@@ -4348,8 +4350,7 @@ ${ravenCtx}
             }
 
             function onDragMove(e) {
-                if (e.type === 'mousemove' && e.buttons !== 1) return;
-                e.preventDefault();
+                if (!_isDragging) return;
                 const src = e.touches ? e.touches[0] : e;
                 const vx = src.clientX - _lastDragX;
                 const vy = src.clientY - _lastDragY;
@@ -4364,15 +4365,22 @@ ${ravenCtx}
             }
 
             function onDragEnd() {
+                if (!_isDragging) return;
+                _isDragging = false;
                 AudioSystem.stopDragSound();
             }
 
             pad.addEventListener('mousedown',  onDragStart);
             pad.addEventListener('touchstart', onDragStart, { passive: false });
-            window.addEventListener('mousemove',  onDragMove);
-            window.addEventListener('touchmove',  onDragMove, { passive: false });
-            window.addEventListener('mouseup',    onDragEnd);
-            window.addEventListener('touchend',   onDragEnd);
+
+            // window 监听器只绑定一次，用 _isDragging 门控，避免重复绑定拦截全局事件
+            if (!window._xyDragBound) {
+                window._xyDragBound = true;
+                window.addEventListener('mousemove', (e) => onDragMove(e));
+                window.addEventListener('touchmove', (e) => onDragMove(e), { passive: true });
+                window.addEventListener('mouseup',   () => onDragEnd());
+                window.addEventListener('touchend',  () => onDragEnd());
+            }
         }
 
         // selectEmotion保留供兼容调用（宝藏卡reset时用）
