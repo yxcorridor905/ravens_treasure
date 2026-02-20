@@ -2397,13 +2397,19 @@
 
 任务：
 1. 根据用户的情绪和内容，创造一个独特的宝藏名称（4-7个字）
-2. 写一句乌鸦点评（15-30字），给予温暖的鼓励或深刻的洞察
+2. 写一段乌鸦点评，作为这枚宝藏的附语
 
-宝藏名称要求：
+━━━━━━━━━━━━━━━━━━━━━━━━━
+【一】宝藏名称生成规则
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+名称格式：
 - 必须是 4-7 个字的具体物品名称
 - 格式严格遵循以下两种之一：
   ① 形容词 + 名词：如"金色花环"、"碎裂的金币"、"发光符文石"
   ② 名词修饰名词（名词 + 的/之 + 名词，或直接组合）：如"水晶符文"、"呼吸沙漏"、"思绪之瓶"
+
+词库约束：
 - 主体名词必须且只能从以下词库中选取，不得使用词库之外的词作为主体：
   金币、硬币、钱币 / 羽毛、羽翎 / 酒杯、圣杯 / 瓶、漂流瓶 / 花环、花冠 /
   铃铛、风铃 / 卷轴、羊皮卷 / 信件、信封 / 护符、符文、封印 / 宝石、琥珀、翡翠 /
@@ -2416,26 +2422,26 @@
   滑梯、玩具（童年记忆）→ 钥匙（开启记忆之门）或 水晶（封存的时光）
   跑步、运动（轻盈自由）→ 羽毛（轻盈）或 沙漏（时间流逝）
   旅行、回乡（归途、变化）→ 贝壳（留存的印记）或 信件（未寄出的思念）
+
+内容关联要求：
 - 必须与用户的情绪状态和记录内容相关，名称应能让人联想到这段经历的核心感受
 - 修饰词必须来自用户描述的情境或情绪，不得凭空捏造无关意象
 - 禁止使用抽象词汇作为主体名词（"力量"、"感受"、"时刻"等不在词库中）
 - 禁止出现人名、人称（"者的"、"你的"等）
-- 情绪映射参考（根据愉悦度和能量感综合判断）：
-  高愉悦+高能量（兴奋/喜悦）→ 明亮、跃动、开放的修饰词（金色、燃起的、跃动、发光）
-  高愉悦+低能量（满足/安宁）→ 沉稳、温润、封存的修饰词（沉甸的、归巢、静水、月光）
-  中性区域（期待/平静/舒适）→ 悬置、呼吸、轻盈的修饰词（待开的、无风的、暖日）
-  低愉悦+高能量（烦躁/愤怒）→ 破损、灼热、紧张的修饰词（裂缝、灼热、燃烧、破碎）
-  低愉悦+低能量（疲惫/悲伤）→ 磨损、低垂、沉默的修饰词（磨损的、低垂的、碎裂的）
-  模糊区域（微妙/焦虑）→ 未完成、悬置、震颤的修饰词（朦胧、待辨、未封口的）
 
-点评要求（三幕式叙事结构）：
-- 总字数30-45字，绝对上限50字，最多2句话
-- 第一句：用非绝对表达（也许/像是/可能）轻描情境或情绪
-- 第二句：一个戏剧意象或留白式收束，像情绪卡片
-- 语言克制，有诗意，避免说教、鸡汤、成功学
-- 第二人称叙述（"你"），不使用"加油"等口号
+情绪映射参考（根据愉悦度和能量感综合判断修饰词风格）：
+  高愉悦+高能量（兴奋/喜悦）→ 明亮、跃动、开放（金色、燃起的、跃动、发光）
+  高愉悦+低能量（满足/安宁）→ 沉稳、温润、封存（沉甸的、归巢、静水、月光）
+  中性区域（期待/平静/舒适）→ 悬置、呼吸、轻盈（待开的、无风的、暖日）
+  低愉悦+高能量（烦躁/愤怒）→ 破损、灼热、紧张（裂缝、灼热、燃烧、破碎）
+  低愉悦+低能量（疲惫/悲伤）→ 磨损、低垂、沉默（磨损的、低垂的、碎裂的）
+  模糊区域（微妙/焦虑）→ 未完成、悬置、震颤（朦胧、待辨、未封口的）
 
-情绪坐标系说明（用户通过XY坐标盘选择情绪）：
+━━━━━━━━━━━━━━━━━━━━━━━━━
+【二】乌鸦点评生成规则
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+情绪坐标系说明：
 - X轴：愉悦度（-1=极度不适 → +1=极度愉悦）
 - Y轴：能量感（-1=极度平静低能量 → +1=极度激动高能量）
 - 情绪词含义：
@@ -2453,21 +2459,122 @@
   愤怒：低愉悦+高能量，明确的被冒犯与爆发
   微妙：坐标居中模糊区，说不清的复合情绪
 
+点评结构（三幕式）：
+- 严格两句话，总字数30-45字，绝对上限50字
+- 第一句：落地——用一个具体的细节、动作、场景或物态捕捉此刻的情绪，不解释、不定性
+- 第二句：悬置——将情绪角色外化为某种存在（人、物、空间、声音、时间感均可），以开放或静默的方式收束，不给结论，不帮人翻篇
+- 两句之间没有逻辑转折，是并置关系，不用"但是/然而/其实/只是"做情绪翻转
+
+语感要求：
+- 克制、低密度、有留白，像在黑暗里轻声说的话
+- 不追问，不建议，不预测，不对比过去
+- 第二人称"你"，或乌鸦自称视角，不混用
+
+禁止清单：
+- 解释情绪（"这说明……"）
+- 预测未来（"会好的""一定能……"）
+- 情绪翻转（"但是/然而/其实/只是"）
+- 陈词滥调意象（月亮思念/蜡烛希望等）
+- 口号与安慰（"加油""你很棒"）
+- 直接重复用户原文词汇作为意象核心
+
+感知规则（根据背景信息自然融入，不生硬提及）：
+
+时间感知：
+- 凌晨（0-5点）：意象趋向幽暗、寂静、独处，语气更轻更慢
+- 清晨（6-9点）：意象趋向刚醒、未定型、薄雾，有"还没开始"的悬置感
+- 上午/下午（10-17点）：日常流动，语气中性，意象贴近具体生活
+- 傍晚（18-20点）：收束感，有告别或交接的意味
+- 夜晚（21-23点）：沉淀感，语气更私密，意象偏向室内、灯光、安静
+
+连续记录感知：
+- 今日已有2条以上：可轻描"你今天来了好几次"，不必每次都说
+- 最近连续2条以上负向情绪：可带一句不说教的关怀，之后不重复
+- 有过往记录：表现出陪伴的熟悉感，不刻意表扬"坚持"
+
+情绪变化感知：
+- 本次与上次落差大（愉悦度或能量感变化超过0.6）：可感知转变，不追问原因
+- 正向→负向：语气更轻，给空间，不急着收尾
+- 负向→正向：可轻轻一句，不过度庆祝
+- 无明显变化：正常回应，不提上一次
+
+内容细节感知：
+- 出现具体的人、场景、身体感受：优先围绕这个细节展开意象
+- 内容少于10字或高度模糊：以情绪坐标为主，不强行解读
+- 感知优先级：内容细节 > 情绪变化 > 时间感知 > 连续记录
+
 安全边界：
-- 检测到持续负面情绪（疲惫/悲伤/焦虑）时，点评可温柔提及"你不用一个人扛着"
+- 持续负面情绪时可温柔带一句"你不用一个人扛着这些"，仅限一次
 - 禁止心理诊断、医疗建议、制造焦虑
 
-回复格式（必须是纯JSON，不要有其他文字）：
+━━━━━━━━━━━━━━━━━━━━━━━━━
+【回复格式】必须是纯JSON，不要有其他文字
+━━━━━━━━━━━━━━━━━━━━━━━━━
 {
   "treasure_name": "宝藏名称",
   "crow_comment": "乌鸦点评"
 }`;
         
+        // 收集乌鸦上下文（静默传入AI，不展示给用户）
+        function buildRavenContext(nx, ny) {
+            // 时间段
+            const hour = new Date().getHours();
+            let timePeriod;
+            if (hour >= 0  && hour < 6)  timePeriod = `凌晨（${hour}点），深夜未眠`;
+            else if (hour < 10)          timePeriod = `清晨（${hour}点），刚刚开始`;
+            else if (hour < 13)          timePeriod = `上午（${hour}点），日间清醒`;
+            else if (hour < 18)          timePeriod = `下午（${hour}点），日常流动`;
+            else if (hour < 21)          timePeriod = `傍晚（${hour}点），收尾时分`;
+            else                         timePeriod = `夜晚（${hour}点），入夜沉淀`;
+
+            // 今日记录条数
+            const today = new Date().toDateString();
+            const todayCount = (treasures || []).filter(t =>
+                new Date(t.timestamp).toDateString() === today
+            ).length;
+            const todayLabel = todayCount === 0 ? '今日第1条' : `今日第${todayCount + 1}条`;
+
+            // 上一条情绪
+            let prevContext = '';
+            if (treasures && treasures.length > 0) {
+                const prev = treasures[0];
+                const prevNX = typeof prev.nx === 'number' ? prev.nx : null;
+                const prevNY = typeof prev.ny === 'number' ? prev.ny : null;
+                if (prevNX !== null) {
+                    const dX = nx !== undefined ? (nx - prevNX).toFixed(2) : null;
+                    const dY = ny !== undefined ? (ny - prevNY).toFixed(2) : null;
+                    const bigShift = dX !== null && (Math.abs(dX) > 0.6 || Math.abs(dY) > 0.6);
+                    const dirChange = dX !== null && ((nx > 0 && prevNX < 0) || (nx < 0 && prevNX > 0));
+                    prevContext = `上一条情绪：${prev.emotion}（愉悦度${prevNX >= 0 ? '+' : ''}${prevNX.toFixed(2)}，能量感${prevNY >= 0 ? '+' : ''}${prevNY.toFixed(2)}）`;
+                    if (bigShift && dirChange) prevContext += `
+情绪转变：落差较大，方向${nx > prevNX ? '由负转正' : '由正转负'}`;
+                    else if (bigShift)         prevContext += `
+情绪转变：同方向但强度变化明显`;
+                } else {
+                    prevContext = `上一条情绪：${prev.emotion}`;
+                }
+            }
+
+            // 最近3条情绪倾向
+            const recent3 = (treasures || []).slice(0, 3);
+            const negEmotions = ['疲惫','悲伤','焦虑','愤怒','烦躁'];
+            const negCount = recent3.filter(t => negEmotions.includes(t.emotion)).length;
+            const recentLabel = negCount >= 2 ? `最近${negCount}条连续负向情绪` : '';
+
+            const parts = [timePeriod, todayLabel, prevContext, recentLabel].filter(Boolean);
+            return parts.join('
+');
+        }
+
         // AI用户Prompt生成函数
         function generateUserPrompt(emotion, content, nx, ny) {
             const pleasureLabel = nx !== undefined ? `${nx >= 0 ? '+' : ''}${nx.toFixed(2)}（${nx > 0.5 ? '较愉悦' : nx > 0 ? '略愉悦' : nx > -0.5 ? '略不适' : '较不适'}）` : '未知';
             const energyLabel   = ny !== undefined ? `${ny >= 0 ? '+' : ''}${ny.toFixed(2)}（${ny > 0.5 ? '较激动' : ny > 0 ? '略激动' : ny > -0.5 ? '略平静' : '较平静'}）` : '未知';
-            return `情绪：${emotion}
+            const ravenCtx = buildRavenContext(nx, ny);
+            return `[乌鸦背景信息，仅供参考，不要直接引用或解释这些标签]
+${ravenCtx}
+
+情绪：${emotion}
 愉悦度：${pleasureLabel}
 能量感：${energyLabel}
 记录内容：${content}
@@ -2541,7 +2648,7 @@
             }
             
             // 主要生成函数
-            async generateTreasure(emotion, content, nx, ny) {
+            async generateTreasure(emotion, content, nx, ny, ctx) {
                 console.log('🎯 开始生成宝藏:', { emotion, content });
                 console.log('🌐 网络状态:', this.isOnline);
                 
@@ -2561,7 +2668,7 @@
                     console.log('🤖 尝试使用AI生成...');
                     
                     // 3. 调用AI API
-                    const result = await this.callDeepSeekAPI(emotion, content, nx, ny);
+                    const result = await this.callDeepSeekAPI(emotion, content, nx, ny, ctx);
                     
                     // 4. 验证结果
                     if (this.validateAIResponse(result)) {
@@ -2583,7 +2690,7 @@
             }
             
             // 调用DeepSeek API
-            async callDeepSeekAPI(emotion, content, nx, ny) {
+            async callDeepSeekAPI(emotion, content, nx, ny, ctx) {
                 console.log('📡 正在调用DeepSeek API...');
                 console.log('🔗 Endpoint:', AI_CONFIG.endpoint);
                 console.log('🤖 Model:', AI_CONFIG.model);
@@ -2598,6 +2705,7 @@
                         content,
                         nx,
                         ny,
+                        ctx,
                         model: AI_CONFIG.model,
                         maxTokens: AI_CONFIG.maxTokens,
                         temperature: AI_CONFIG.temperature
@@ -2733,6 +2841,60 @@
             musicInterval: null,
             masterVolume: 0.3, // 默认音量30%
             sfxVolume: 1.0, // 交互音效音量，默认100%
+
+            // ── 水晶沙粒：XY坐标盘拖拽持续音效 ──
+            _dragNodes: null,
+
+            startDragSound(px, py) {
+                if (this.sfxVolume === 0) return;
+                if (!this.context) return;
+                if (this.context.state === 'suspended') this.context.resume();
+                // 已在播放则直接更新参数
+                if (this._dragNodes) { this.updateDragSound(px, py, 0, 0); return; }
+
+                const c = this.context;
+                // 白噪声 buffer
+                const buf = c.createBuffer(1, c.sampleRate * 2, c.sampleRate);
+                const d = buf.getChannelData(0);
+                for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+
+                const src = c.createBufferSource();
+                src.buffer = buf; src.loop = true;
+
+                // 带通滤波：频率随X轴位置变化
+                const bpf = c.createBiquadFilter();
+                bpf.type = 'bandpass';
+                bpf.frequency.value = 5000 + px * 4000;
+                bpf.Q.value = 0.8;
+
+                const gain = c.createGain();
+                gain.gain.value = 0;
+
+                src.connect(bpf); bpf.connect(gain); gain.connect(c.destination);
+                src.start();
+
+                // 淡入
+                gain.gain.linearRampToValueAtTime(0.028 * this.sfxVolume, c.currentTime + 0.08);
+                this._dragNodes = { src, gain, bpf };
+            },
+
+            updateDragSound(px, py, vx, vy) {
+                if (!this._dragNodes) return;
+                if (this.sfxVolume === 0) { this.stopDragSound(); return; }
+                const c = this.context;
+                const speed = Math.min(Math.sqrt(vx*vx + vy*vy), 30);
+                const vol = (0.018 + speed * 0.0018) * this.sfxVolume;
+                this._dragNodes.gain.gain.setTargetAtTime(vol, c.currentTime, 0.04);
+                this._dragNodes.bpf.frequency.setTargetAtTime(5000 + px * 4000, c.currentTime, 0.1);
+            },
+
+            stopDragSound() {
+                if (!this._dragNodes) return;
+                const nodes = this._dragNodes;
+                this._dragNodes = null;
+                nodes.gain.gain.linearRampToValueAtTime(0, this.context.currentTime + 0.12);
+                setTimeout(() => { try { nodes.src.stop(); } catch(e){} }, 160);
+            },
             isFirstPlay: true, // 标记是否是第一次播放
             
             init() {
@@ -2944,7 +3106,7 @@
             
             // 1. 增强黑轴点击音效（通用交互）
             playButtonClick() {
-                if (this.isMuted || !this.context || this.sfxVolume === 0) return;
+                if (!this.context || this.sfxVolume === 0) return;
                 
                 const freq = 200; // 低沉厚重
                 const duration = 0.18; // 放慢50%
@@ -2992,7 +3154,7 @@
             
             // 2. 古老宝箱吱呀音效（修改版，仅第一段长音）
             playChestOpen() {
-                if (this.isMuted || !this.context || this.sfxVolume === 0) return;
+                if (!this.context || this.sfxVolume === 0) return;
                 
                 const now = this.context.currentTime;
                 const startFreq = 150;
@@ -3033,7 +3195,7 @@
             
             // 3. 竖琴抽卡音效（最终版）
             playCardDrawHarp(onComplete) {
-                if (this.isMuted || !this.context) return 0;
+                if (!this.context || this.sfxVolume === 0) return 0;
                 
                 // 音符序列：C4-D4-F4-A4-C5-B4-G4-D4-C4
                 const sequence = [
@@ -3101,7 +3263,7 @@
             
             // 扔进宝箱音效（暂时保留）
             playSaveTreasure() {
-                if (this.isMuted || !this.context) return;
+                if (!this.context || this.sfxVolume === 0) return;
                 
                 const now = this.context.currentTime;
                 
@@ -4164,7 +4326,6 @@
                 hint.textContent = emotion; hint.style.color = col;
 
                 // 更新selectedEmotion并激活生成按钮
-                AudioSystem.playButtonClick();
                 selectedEmotion = emotion;
                 selectedEmotionColor = col;
                 selectedNX = nx;
@@ -4172,10 +4333,46 @@
                 updateGenerateButton();
             }
 
-            pad.addEventListener('mousedown',  handleXY);
-            pad.addEventListener('mousemove',  e => { if (e.buttons===1) handleXY(e); });
-            pad.addEventListener('touchstart', handleXY, { passive: false });
-            pad.addEventListener('touchmove',  handleXY, { passive: false });
+            let _lastDragX = 0, _lastDragY = 0;
+
+            function onDragStart(e) {
+                e.preventDefault();
+                const rect = pad.getBoundingClientRect();
+                const src  = e.touches ? e.touches[0] : e;
+                _lastDragX = src.clientX; _lastDragY = src.clientY;
+                handleXY(e);
+                AudioSystem.startDragSound(
+                    Math.max(0, Math.min(1, (src.clientX - rect.left) / rect.width)),
+                    Math.max(0, Math.min(1, (src.clientY - rect.top)  / rect.height))
+                );
+            }
+
+            function onDragMove(e) {
+                if (e.type === 'mousemove' && e.buttons !== 1) return;
+                e.preventDefault();
+                const src = e.touches ? e.touches[0] : e;
+                const vx = src.clientX - _lastDragX;
+                const vy = src.clientY - _lastDragY;
+                _lastDragX = src.clientX; _lastDragY = src.clientY;
+                handleXY(e);
+                const rect = pad.getBoundingClientRect();
+                AudioSystem.updateDragSound(
+                    Math.max(0, Math.min(1, (src.clientX - rect.left) / rect.width)),
+                    Math.max(0, Math.min(1, (src.clientY - rect.top)  / rect.height)),
+                    vx, vy
+                );
+            }
+
+            function onDragEnd() {
+                AudioSystem.stopDragSound();
+            }
+
+            pad.addEventListener('mousedown',  onDragStart);
+            pad.addEventListener('touchstart', onDragStart, { passive: false });
+            window.addEventListener('mousemove',  onDragMove);
+            window.addEventListener('touchmove',  onDragMove, { passive: false });
+            window.addEventListener('mouseup',    onDragEnd);
+            window.addEventListener('touchend',   onDragEnd);
         }
 
         // selectEmotion保留供兼容调用（宝藏卡reset时用）
@@ -4210,7 +4407,8 @@
 
             try {
                 // 使用AI服务生成宝藏
-                const aiResult = await aiService.generateTreasure(selectedEmotion, content, selectedNX, selectedNY);
+                const ravenCtx = buildRavenContext(selectedNX, selectedNY);
+                const aiResult = await aiService.generateTreasure(selectedEmotion, content, selectedNX, selectedNY, ravenCtx);
                 
                 // 根据宝藏名称推断图标类型，匹配不到则默认水晶（12）
                 const randomIconType = getIconTypeFromName(aiResult.treasure_name);
@@ -4221,6 +4419,8 @@
                     content: content,
                     emotion: selectedEmotion,
                     emotionColor: selectedEmotionColor,
+                    nx: selectedNX,
+                    ny: selectedNY,
                     comment: aiResult.crow_comment,
                     timestamp: Date.now(), // 原始时间戳，用于计算记录天数
                     time: new Date().toLocaleString('zh-CN', { 
@@ -4914,6 +5114,7 @@
             if (sfxMuted) {
                 iconBtn.classList.add('muted');
                 AudioSystem.sfxVolume = 0;
+                AudioSystem.stopDragSound(); // 静音时立即停止拖拽音效
                 showToast('音效已关闭');
             } else {
                 iconBtn.classList.remove('muted');
@@ -4940,6 +5141,12 @@
         function updateSFXVolume(value) {
             if (!sfxMuted) {
                 AudioSystem.sfxVolume = value / 100;
+                // 实时更新进行中的拖拽音效音量
+                if (AudioSystem._dragNodes && AudioSystem.context) {
+                    AudioSystem._dragNodes.gain.gain.setTargetAtTime(
+                        0.022 * AudioSystem.sfxVolume, AudioSystem.context.currentTime, 0.05
+                    );
+                }
             }
             document.getElementById('sfxVolumeValue').textContent = value + '%';
             
